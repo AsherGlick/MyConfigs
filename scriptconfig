@@ -1,0 +1,7 @@
+{
+	"bashrc":"~/.bashrc",
+	"gitconfig":"~/.gitconfig",
+	"cheadsig":"~/.signaturesource",
+	"terminalglobals":"~/.gconf/apps/gnome-terminal/global/%gconf.xml",
+	"terminalprofile0":"~/.gconf/apps/gnome-terminal/profiles/Profile0/%gconf.xml"
+}

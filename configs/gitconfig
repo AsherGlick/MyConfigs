@@ -1,0 +1,7 @@
+[user]
+	name = Asher Glick
+	email = asher.glick@gmail.com
+[core]
+	editor = subl -w
+[color]
+	ui = true
