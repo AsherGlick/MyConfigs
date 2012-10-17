@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import json
 import shutil
 import os
@@ -73,4 +75,8 @@ def backup():
 			color = OKGREEN
 
 		output = color + element + ENDC + " " +("."*(width-5-len(element)-len(info)) ) + color + " ["+info+"]" + ENDC + "\n  " + path
-		print output 	
+		print output
+	os.system("git add configs/*")
+
+if __name__ == "__main__":
+	backup();
