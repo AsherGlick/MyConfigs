@@ -80,7 +80,7 @@ def restore():
 
     print "Beginning Restore"
 
-    for elements in data:
+    for element in data:
         output = ""
         info = ""
         path = os.path.expanduser(data[element])
@@ -101,7 +101,7 @@ def restore():
         print output
 
 if __name__ == "__main__":
-	if len(sys.argv) == 2:
+    if len(sys.argv) == 2:
         if sys.argv[1] == "backup":
             backup()
         elif sys.argv[1] == "restore":
