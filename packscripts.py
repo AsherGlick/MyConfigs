@@ -59,8 +59,6 @@ def backup():
 		info = ""
 		path = os.path.expanduser(data[element])
 
-		#print element+ "\n--| " + path
-
 		try:
 			shutil.copyfile(path,"configs/"+element)
 		except IOError:
@@ -71,12 +69,42 @@ def backup():
 			color = FAIL
 		else:
 			info = "Sucess"
-			#print " "*20 + " | " + "SUCESS"
 			color = OKGREEN
 
 		output = color + element + ENDC + " " +("."*(width-5-len(element)-len(info)) ) + color + " ["+info+"]" + ENDC + "\n  " + path
 		print output
 	os.system("git add configs/*")
 
+def restore():
+    (width, height) = getTerminalSize()
+
+    print "Beginning Restore"
+
+    for elements in data:
+        output = ""
+        info = ""
+        path = os.path.expanduser(data[element])
+
+        try:
+            shutil.copyfile("configs/"+element,path)
+        except IOError:
+            info = "Failed, Error opening file"
+            color = FAIL
+        except:
+            info = "Failed, Unknown Error"
+            color = FAIL
+        else:
+            info = "Sucess"
+            color = OKGREEN
+
+        output = color + element + ENDC + " " +("."*(width-5-len(element)-len(info)) ) + color + " ["+info+"]" + ENDC + "\n  " + path
+        print output
+
 if __name__ == "__main__":
-	backup();
+	if len(sys.argv) == 2:
+        if sys.argv[1] == "backup":
+            backup()
+        elif sys.argv[1] == "restore":
+            restore();
+    else:
+        backup()
