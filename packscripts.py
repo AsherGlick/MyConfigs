@@ -50,31 +50,40 @@ def getTerminalSize():
 
 
 def backup():
-	(width, height) = getTerminalSize()
+    (width, height) = getTerminalSize()
 
-	print "Beginning Backup"
+    print "Beginning Backup"
 
-	for element in data:
+    for element in data:
 
-		output = ""
-		info = ""
-		path = os.path.expanduser(data[element])
+        output = ""
+        info = ""
+        path = os.path.expanduser(data[element])
 
-		try:
-			shutil.copyfile(path,"configs/"+element)
-		except IOError:
-			info = "Failed, Error opening file"
-			color = FAIL
-		except:
-			info = "Failed, Unknown Error"
-			color = FAIL
-		else:
-			info = "Sucess"
-			color = OKGREEN
 
-		output = color + element + ENDC + " " +("."*(width-5-len(element)-len(info)) ) + color + " ["+info+"]" + ENDC + "\n  " + path
-		print output
-	#os.system("git add configs/*")
+        try:
+            filesDiffer = not filecmp.cmp(path,"configs/"+element)
+        except:
+            pass
+
+        info = "Sucess"
+        color = OKGREEN
+        try:
+            if filesDiffer:
+                shutil.copyfile(path,"configs/"+element)
+            else:
+                info = "No Change"
+                color = WARNING
+        except IOError:
+            info = "Failed, Error opening file"
+            color = FAIL
+        except:
+            info = "Failed, Unknown Error"
+            color = FAIL
+
+        output = color + element + ENDC + " " +("."*(width-5-len(element)-len(info)) ) + color + " ["+info+"]" + ENDC + "\n  " + path
+        print output
+    #os.system("git add configs/*")
 
 def restore():
     (width, height) = getTerminalSize()
