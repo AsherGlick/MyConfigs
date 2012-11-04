@@ -4,6 +4,7 @@ import json
 import shutil
 import os
 import sys
+import filecmp
 #from pprint import pprint
 json_data=open('scriptconfig')
 
@@ -85,19 +86,31 @@ def restore():
         info = ""
         path = os.path.expanduser(data[element])
 
+        filesDiffer = True
+
         try:
-            shutil.copyfile("configs/"+element,path)
+            filesDiffer = not filecmp.cmp(path,"configs/"+element)
+        except:
+            pass
+
+        info = "Unpacked"
+        color = OKGREEN
+        try:
+            if filesDiffer:
+                shutil.copyfile("configs/"+element,path)
+            else:
+                info = "No Change"
+                color = WARNING
         except IOError:
             info = "Failed, Error opening file"
             color = FAIL
         except:
             info = "Failed, Unknown Error"
             color = FAIL
-        else:
-            info = "Sucess"
-            color = OKGREEN
+                
+        
 
-        output = color + element + ENDC + " " +("."*(width-5-len(element)-len(info)) ) + color + " ["+info+"]" + ENDC + "\n  " + path
+        output = color + element + ENDC + " " +("."*(width-5-len(element)-len(info)) ) + color + " ["+info+"]" + ENDC #+ "\n  " + path
         print output
 
 if __name__ == "__main__":
@@ -105,6 +118,6 @@ if __name__ == "__main__":
         if sys.argv[1] == "backup":
             backup()
         elif sys.argv[1] == "restore":
-            restore();
+            restore()
     else:
         backup()
