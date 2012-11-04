@@ -73,7 +73,7 @@ def backup():
 
 		output = color + element + ENDC + " " +("."*(width-5-len(element)-len(info)) ) + color + " ["+info+"]" + ENDC + "\n  " + path
 		print output
-	os.system("git add configs/*")
+	#os.system("git add configs/*")
 
 def restore():
     (width, height) = getTerminalSize()
