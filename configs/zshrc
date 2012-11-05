@@ -1,0 +1,182 @@
+typeset -ga preexec_functions # set a global array named preexex_functions
+typeset -ga precmd_functions
+typeset -ga chpwd_functions
+setopt prompt_subst
+
+################################################################################
+############################# PROMPT CONFIGURATION #############################
+################################################################################
+autoload -Uz promptinit
+promptinit
+autoload -U colors && colors
+
+########################## CUSTOM PROMPT CONFIGURATION #########################
+# %d     Your current working directory relative to /home/                     #
+# %~     Your current working directory relative to /home/member/u/username    #
+# %B %b  Begin and end bold print                                              #
+# %U %u  Begin and end underlined print                                        #
+# %M     server name  e.g: prodigy.redbrick.dcu.ie                             #
+# %m     The part of the hostname up to the first dot  e.g: prodigy            #
+# %n     Your login name                                                       #
+# %T     system time in HH:mm format                                           #
+# %*     system time in HH:mm:ss format                                        #
+# %D     Todays date in YY-MM-DD format                                        #
+# %l     Your current tty  e.g: pts/100                                        #
+################################################################################
+PROMPT="%B%{$fg[red]%}[%n@%m]%{$fg[blue]%}%~%{$reset_color%}%#%b "
+
+################################################################################
+################################# GIT SETTINGS #################################
+################################################################################
+ # get the current branch name
+currentBranch() {
+	ref=$(git symbolic-ref HEAD 2> /dev/null) || return
+	echo "${ref#refs/heads/}"
+}
+
+################################## GIT PROMPT ##################################
+# The git prompt function gathers the current branch and formats it for        #
+# display. Depending on the status of the repo it changes the color of the     #
+# branch name.                                                                 #
+################################################################################
+function __git_prompt {
+  local DIRTY="%{$fg[red]%}"
+  local CLEAN="%{$fg[green]%}"
+  local UNMERGED="%{$fg[yellow]%}"
+  local RESET="%{$terminfo[sgr0]%}"
+  git rev-parse --git-dir >& /dev/null
+  if [[ $? == 0 ]]
+  then
+    echo -n "["
+    if [[ `git ls-files -u >& /dev/null` == '' ]]
+    then
+      git diff --quiet >& /dev/null
+      if [[ $? == 1 ]]
+      then
+        echo -n $DIRTY
+      else
+        git diff --cached --quiet >& /dev/null
+        if [[ $? == 1 ]]
+        then
+          echo -n $DIRTY
+        else
+          echo -n $CLEAN
+        fi
+      fi
+    else
+      echo -n $UNMERGED
+    fi
+    echo -n `currentBranch`
+    echo -n $RESET
+    echo -n "]"
+  fi
+}
+
+## set up the right prompt with git
+RPROMPT='$(__git_prompt)'
+
+
+################################## GIT ALIASES #################################
+# These are a list of git aliaes for git shortcuts                             #
+################################################################################
+alias ga="git add"
+alias gd="git diff"
+alias gs="git status"
+alias gc="git commit -m"
+alias gk="git checkout"
+alias gd="git diff"
+alias gl="git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --"
+gp() { git pull origin `currentBranch`; git push origin `currentBranch` }
+
+############################### TOGGLE GIT PROMPT ##############################
+# This function toggles the git prompt on or off in case it gets annoying      #
+# after a while                                                                #
+################################################################################
+git_prompt(){
+	if [ "$RPROMPT" = "" ];
+	then
+		RPROMPT='$(__git_prompt)'
+	else
+		RPROMPT=""
+	fi;
+}
+alias gpr="git_prompt"
+
+
+# COLORS
+# enable color support of ls and also add handy aliases
+if [ -x /usr/bin/dircolors ]; then
+    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+    alias ls='ls --color=auto'
+    #alias dir='dir --color=auto'
+    #alias vdir='vdir --color=auto'
+
+    alias grep='grep --color=auto'
+    alias fgrep='fgrep --color=auto'
+    alias egrep='egrep --color=auto'
+fi
+
+################################################################################
+############################## HELPFUL FUNCTIONS ###############################
+################################################################################
+
+#################################### EXTRACT ###################################
+# The extract function extracts a file by finding the right program to extract #
+# it with and running the function. Run this function by typing #
+# ~$ extract filetoextract.extention #
+################################################################################
+extract () {
+  if [ -f $1 ] ; then
+case $1 in
+          *.tar.bz2) tar xvjf $1 ;;
+          *.tar.gz) tar xvzf $1 ;;
+          *.bz2) bunzip2 $1 ;;
+          *.rar) rar x $1 ;;
+          *.gz) gunzip $1 ;;
+          *.tar) tar xvf $1 ;;
+          *.tbz2) tar xvjf $1 ;;
+          *.tgz) tar xvzf $1 ;;
+          *.zip) unzip $1 ;;
+          *.Z) uncompress $1 ;;
+          *.7z) 7z x $1 ;;
+          *) echo "don't know how to extract '$1'..." ;;
+      esac
+else
+echo "'$1' is not a valid file!"
+  fi
+}
+
+################################################################################
+########################### PRE CONFIGURED SETTINGS ############################
+################################################################################
+setopt histignorealldups sharehistory
+
+# Use emacs keybindings even if our EDITOR is set to vi
+bindkey -e
+
+# Keep 1000 lines of history within the shell and save it to ~/.zsh_history:
+HISTSIZE=1000
+SAVEHIST=1000
+HISTFILE=~/.zsh_history
+
+# Use modern completion system
+autoload -Uz compinit
+compinit
+
+zstyle ':completion:*' auto-description 'specify: %d'
+zstyle ':completion:*' completer _expand _complete _correct _approximate
+zstyle ':completion:*' format 'Completing %d'
+zstyle ':completion:*' group-name ''
+zstyle ':completion:*' menu select=2
+eval "$(dircolors -b)"
+zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS}
+zstyle ':completion:*' list-colors ''
+zstyle ':completion:*' list-prompt %SAt %p: Hit TAB for more, or the character to insert%s
+zstyle ':completion:*' matcher-list '' 'm:{a-z}={A-Z}' 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=* l:|=*'
+zstyle ':completion:*' menu select=long
+zstyle ':completion:*' select-prompt %SScrolling active: current selection at %p%s
+zstyle ':completion:*' use-compctl false
+zstyle ':completion:*' verbose true
+
+zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([0-9]#)*=0=01;31'
+zstyle ':completion:*:kill:*' command 'ps -u $USER -o pid,%cpu,tty,cputime,cmd'

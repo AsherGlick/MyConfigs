@@ -1,5 +1,6 @@
 {
 	"bashrc":"~/.bashrc",
+	"zshrc":"~/.zshrc",
 	"gitconfig":"~/.gitconfig",
 	"cheadsig":"~/.signaturesource",
 	"terminalglobals":"~/.gconf/apps/gnome-terminal/global/%gconf.xml",
