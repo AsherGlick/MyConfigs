@@ -40,9 +40,10 @@ data = json.load(json_data)
 json_data.close()
 
 # some simple colors for the terminal
-OKGREEN = '\033[92m'
-WARNING = '\033[93m'
-FAIL = '\033[91m'
+OKGREEN = '\033[92m' # green
+WARNING = '\033[93m' # yellow
+FAIL = '\033[91m'    # red
+LINKED = '\033[94m'  # blue
 ENDC = '\033[0m'
 
 
@@ -91,46 +92,79 @@ def cycleFiles(beginningComment, functiontorun, verbose=False, sucessMessage="Su
         output = ""
         info = ""
         path = os.path.expanduser(data[element])
+        localPath = os.path.expanduser("configs/"+element)
+        localPath = os.path.abspath(localPath)
+
+        #print localPath
+
+        symbolicLink = ""
+        try:
+            symbolicLink = os.readlink(path)
+        except OSError:
+            #print "NOT LINK"
+            pass
 
         filesDiffer = True
 
         try:
-            filesDiffer = not filecmp.cmp(path,"configs/"+element)
+            filesDiffer = not filecmp.cmp(path,localPath)
         except:
             pass
 
-        info = sucessMessage
-        color = OKGREEN
-        try:
-            if filesDiffer:
-                functiontorun("configs/"+element,path)
+        # if the target file is not a symbolic link
+        if symbolicLink == "":
+            info = sucessMessage
+            color = OKGREEN
+            try:
+                if filesDiffer:
+                    functiontorun(localPath,path)
+                else:
+                    info = "No Change"
+                    color = WARNING
+            except IOError:
+                info = "Failed, Error opening file"
+                color = FAIL
+            except:
+                info = "Failed, Unknown Error"
+                color = FAIL
+        
+        # the taget is a symbolic link
+        else:
+            if symbolicLink == localPath:
+                info = "Linked"
+                color = LINKED
             else:
-                info = "No Change"
-                color = WARNING
-        except IOError:
-            info = "Failed, Error opening file"
-            color = FAIL
-        except:
-            info = "Failed, Unknown Error"
-            color = FAIL
+                info = "Bad Link to:" + symbolicLink
+                color = LINKED
                 
         
 
-        output = color + element + ENDC + " " +("."*(width-5-len(element)-len(info)) ) + color + " ["+info+"]" + ENDC 
+        output = " " +color + element + ENDC + " " +("."*(width-6-len(element)-len(info)) ) + color + " ["+info+"]" + ENDC 
         if(verbose): output += "\n  " + path
         print output
+
 ################################# RESTORE COPY #################################
 # This function copys the file from the the local file to the target file in   #
 # effect "restoring" the file to the machine                                   #
 ################################################################################
 def restoreCopy(localFile,targetFile):
     shutil.copyfile(localFile,targetFile)
-## the function to backup from the target file to the local file
+
+################################## BACKUP COPY #################################
+# This function copys the target file into the local directory in order to     #
+# back it up so that it is saved in the repo                                   #
+################################################################################
 def backupCopy(localFile, targetFile):
     shutil.copyfile(targetFile,localFile)
-## the function to do nothing with the two files
+################################# NULL FUNCTION ################################
+# This function does nothing and is ment to be used for when the user just     #
+# wants to check to see if the file is different or the same                   #
+################################################################################
 def nullFunction(localFile,targetFile):
     pass
+
+def linkFiles(localFile,targetFile):
+    os.symlink(localFile,targetFile)
 
 
 ## the main statement that handles the arguments and calls the apropriate functions
@@ -140,5 +174,10 @@ if __name__ == "__main__":
             cycleFiles("Beginning Backup", backupCopy, verbose=False, sucessMessage="Backed Up")
         elif sys.argv[1] == "restore":
             cycleFiles("Beginning Restore", restoreCopy, verbose=False, sucessMessage="Extracted")
+        elif sys.argv[1] == "link":
+            if len(sys.argv == 3):
+                cycleFiles("Linking Files", linkFile, verbose=True, sucessMessage="Linked")
+            else:
+                print "You need to specify a file you want to have linked"
     else:
         cycleFiles("Beginning Check", nullFunction, verbose=False, sucessMessage="Different Files")
