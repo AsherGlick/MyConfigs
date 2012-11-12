@@ -5,23 +5,24 @@ import shutil
 import os
 import sys
 import filecmp
-#from pprint import pprint
+
 json_data=open('scriptconfig')
 
 data = json.load(json_data)
-#pprint(data)
+
 json_data.close()
 
-
+# some simple colors for the terminal
 OKGREEN = '\033[92m'
 WARNING = '\033[93m'
 FAIL = '\033[91m'
 ENDC = '\033[0m'
 
 
-
-
-
+############################### GET TERMINAL SIZE ##############################
+# This function gets the size of the terminal and returns a width and a        #
+# height as ints                                                               #
+################################################################################
 def getTerminalSize():
     import os
     env = os.environ
@@ -49,6 +50,52 @@ def getTerminalSize():
     return int(cr[1]), int(cr[0])
 
 
+
+def cycleFiles(beginningComment, functiontorun, verbose=False, sucessMessage="Sucess"):
+    (width, height) = getTerminalSize()
+
+    print beginningComment
+
+    for element in data:
+        output = ""
+        info = ""
+        path = os.path.expanduser(data[element])
+
+        filesDiffer = True
+
+        try:
+            filesDiffer = not filecmp.cmp(path,"configs/"+element)
+        except:
+            pass
+
+        info = sucessMessage
+        color = OKGREEN
+        try:
+            if filesDiffer:
+                functiontorun("configs/"+element,path)
+            else:
+                info = "No Change"
+                color = WARNING
+        except IOError:
+            info = "Failed, Error opening file"
+            color = FAIL
+        except:
+            info = "Failed, Unknown Error"
+            color = FAIL
+                
+        
+
+        output = color + element + ENDC + " " +("."*(width-5-len(element)-len(info)) ) + color + " ["+info+"]" + ENDC 
+        if(verbose): output += "\n  " + path
+        print output
+
+def restoreCopy(localFile,targetFile):
+    shutil.copyfile(localFile,targetFile)
+def backupCopy(localFile, targetFile):
+    shutil.copyfile(targetFile,localFile)
+def nullFunction(localFile,targetFile):
+    pass
+
 def backup():
     (width, height) = getTerminalSize()
 
@@ -60,6 +107,7 @@ def backup():
         info = ""
         path = os.path.expanduser(data[element])
 
+        filesDiffer = True
 
         try:
             filesDiffer = not filecmp.cmp(path,"configs/"+element)
@@ -125,8 +173,8 @@ def restore():
 if __name__ == "__main__":
     if len(sys.argv) == 2:
         if sys.argv[1] == "backup":
-            backup()
+            cycleFiles("Beginning Backup", backupCopy, verbose=False, sucessMessage="Backed Up")
         elif sys.argv[1] == "restore":
-            restore()
+            cycleFiles("Beginning Restore", restoreCopy, verbose=False, sucessMessage="Extracted")
     else:
-        backup()
+        cycleFiles("Beginning Check", nullFunction, verbose=False, sucessMessage="Different Files")
