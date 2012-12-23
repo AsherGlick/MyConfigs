@@ -11,4 +11,4 @@
 sudo ./createLauncher.sh
 
 # Run the replacement Script
-echo "OVERWRITING OLD TEXT EDITOR WITH SUBLIME"
+sudo ./overwriteTextEditor.sh
