@@ -10,5 +10,18 @@
 # Run the Launcher Script
 sudo ./createLauncher.sh
 
-# Run the replacement Script
-sudo ./overwriteTextEditor.sh
+echo ""
+
+while true; do
+    read -p "Do you wish to have sublime replace gedit?[Y/n] " yn
+    case $yn in
+        [Yy]* ) 
+		# Run the replacement Script
+		sudo ./overwriteTextEditor.sh;
+		break;;
+        [Nn]* ) exit;;
+        * ) echo "Please answer yes or no.";;
+    esac
+done
+
+
