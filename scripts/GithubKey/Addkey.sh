@@ -22,5 +22,5 @@ read -p "Github username: " USERNAME
 # Read the public key into memory
 KEY=`cat $HOME/.ssh/id_rsa.pub`
 # send the post request to the github api to add the key
-#curl -i -u "$USERNAME" -d '{"title":"$TITLE","key":"$KEY"}' https://api.github.com/user/keys
-echo "{\"title\":\"$TITLE\",\"key\":\"$KEY\"}"
+curl -i -u "$USERNAME" -d "{\"title\":\"$TITLE\",\"key\":\"$KEY\"}" https://api.github.com/user/keys
+#echo "{\"title\":\"$TITLE\",\"key\":\"$KEY\"}"
