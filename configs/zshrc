@@ -45,7 +45,7 @@ function __git_prompt {
   local UNMERGED="%{$fg[yellow]%}"
   local RESET="%{$terminfo[sgr0]%}"
   git rev-parse --git-dir >& /dev/null
-  if [[ $? == 0 ]]
+  if [[ $? == 0 ]] # Check last error to see if this is a git repo
   then
     echo -n "["
     if [[ `git ls-files -u >& /dev/null` == '' ]]
@@ -55,7 +55,7 @@ function __git_prompt {
       then
         echo -n $DIRTY
       else
-        git diff --cached --quiet >& /dev/null
+        git diff --quiet >& /dev/null
         if [[ $? == 1 ]]
         then
           echo -n $DIRTY
@@ -70,6 +70,18 @@ function __git_prompt {
     echo -n $RESET
     echo -n "]"
   fi
+  
+  #svn checking
+  svn info >& /dev/null
+  if [[ $? == 0 ]]
+  then
+    echo -n "{svn}"
+  else
+    echo ""
+  fi
+
+
+
 }
 
 ## set up the right prompt with git
@@ -108,9 +120,9 @@ alias gpr="git_prompt"
 isrepo () {
   if [ "`__git_prompt`" = "" ];
   then
-    echo "YES"
-  else
     echo "NO"
+  else
+    echo "YES"
   fi;
 }
 
@@ -134,8 +146,8 @@ fi
 
 #################################### EXTRACT ###################################
 # The extract function extracts a file by finding the right program to extract #
-# it with and running the function. Run this function by typing #
-# ~$ extract filetoextract.extention #
+# it with and running the function. Run this function by typing                #
+# ~$ extract filetoextract.extention                                           #
 ################################################################################
 extract () {
   if [ -f $1 ] ; then
