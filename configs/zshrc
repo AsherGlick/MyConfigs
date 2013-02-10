@@ -102,6 +102,18 @@ git_prompt(){
 }
 alias gpr="git_prompt"
 
+####
+# SVN / GIT mirror commands
+###
+isrepo () {
+  if [ "`__git_prompt`" = "" ];
+  then
+    echo "YES"
+  else
+    echo "NO"
+  fi;
+}
+
 
 # COLORS
 # enable color support of ls and also add handy aliases
