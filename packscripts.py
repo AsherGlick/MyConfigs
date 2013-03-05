@@ -164,19 +164,30 @@ def nullFunction(localFile,targetFile):
     pass
 
 def linkFiles(localFile,targetFile):
+    #pass
+    print localFile
+    print targetFile
     os.symlink(localFile,targetFile)
 
 
 ## the main statement that handles the arguments and calls the apropriate functions
 if __name__ == "__main__":
-    if len(sys.argv) == 2:
+    if len(sys.argv) >= 2:
         if sys.argv[1] == "backup":
             cycleFiles("Beginning Backup", backupCopy, verbose=False, sucessMessage="Backed Up")
         elif sys.argv[1] == "restore":
             cycleFiles("Beginning Restore", restoreCopy, verbose=False, sucessMessage="Extracted")
         elif sys.argv[1] == "link":
-            if len(sys.argv == 3):
-                cycleFiles("Linking Files", linkFile, verbose=True, sucessMessage="Linked")
+            if len(sys.argv) == 3:
+                localFile = sys.argv[2]
+                if localFile in data:
+                    path = os.path.expanduser(data[localFile])
+                    localPath = os.path.expanduser("configs/"+localFile)
+                    localPath = os.path.abspath(localPath)
+                    linkFiles(localPath,path)
+                    cycleFiles("Linking Files", nullFunction, verbose=True, sucessMessage="Different Files")
+                else:
+                    print "Unknown File to Link"
             else:
                 print "You need to specify a file you want to have linked"
     else:
