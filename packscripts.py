@@ -40,10 +40,10 @@ data = json.load(json_data)
 json_data.close()
 
 # some simple colors for the terminal
-OKGREEN = '\033[92m' # green
-WARNING = '\033[93m' # yellow
-FAIL = '\033[91m'    # red
-LINKED = '\033[94m'  # blue
+OKGREEN = '\033[1;32m' # green 32
+WARNING = '\033[1;33m' # yellow 33
+FAIL = '\033[1;31m'    # red 31
+LINKED = '\033[1;34m'  # blue 34
 ENDC = '\033[0m'
 
 
