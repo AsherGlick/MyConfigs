@@ -191,4 +191,5 @@ if __name__ == "__main__":
             else:
                 print "You need to specify a file you want to have linked"
     else:
+        print "Options: backup, restore, link"
         cycleFiles("Beginning Check", nullFunction, verbose=False, sucessMessage="Different Files")
