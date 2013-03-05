@@ -8,6 +8,6 @@
 ################################################################################
 
 # find all lines that begin with 'deb cdrom:' and replace them with '# deb cdrom:'
-sed -e 's/^deb cdrom:/# deb cdrom:/g' /etc/apt/sources.list > /etc/apt/sources.list
+sed -e 's/^deb cdrom:/# deb cdrom:/g' < /etc/apt/sources.list > /etc/apt/sources.list
 
 
