@@ -2,6 +2,9 @@
 	name = Asher Glick
 	email = asher.glick@gmail.com
 [core]
-	editor = subl -w
+	editor = sublime -n -w
 [color]
 	ui = true
+[alias]
+    unstage = reset HEAD
+    hist = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --
