@@ -79,7 +79,7 @@ function __git_prompt {
   else
     echo ""
   fi
-
+## git rev-list -1 --grep='git-svn-id' HEAD ## will check to see if the repo is a git-svn repo
 
 
 }
