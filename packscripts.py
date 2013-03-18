@@ -167,6 +167,8 @@ def linkFiles(localFile,targetFile):
     #pass
     print localFile
     print targetFile
+    if os.path.exists(targetFile):
+        os.remove(targetFile)
     os.symlink(localFile,targetFile)
 
 
