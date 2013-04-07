@@ -175,6 +175,18 @@ newdir() {
   mkdir $1
   cd $1
 }
+
+# Removes an ssh key from the known hosts library
+removekey() {
+  if [ $# -eq 1 ]
+  then
+    ssh-keygen -f "/home/vault/.ssh/known_hosts" -R $1
+  else
+    echo "removekey removes an ssh key from the known hosts file"
+    echo "Usage: removekey 'Key Name / IP Address'"
+  fi
+}
+
 ################################################################################
 ########################### PRE CONFIGURED SETTINGS ############################
 ################################################################################
