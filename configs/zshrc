@@ -23,7 +23,7 @@ autoload -U colors && colors
 # %D     Todays date in YY-MM-DD format                                        #
 # %l     Your current tty  e.g: pts/100                                        #
 ################################################################################
-PROMPT="%B%{$fg[red]%}[%n@%m]%{$fg[blue]%}%~%{$reset_color%}%#%b "
+PROMPT="%B%{$fg[green]%}[%n@%m]%{$fg[blue]%}%~%{$reset_color%}%#%b "
 
 ################################################################################
 ################################# GIT SETTINGS #################################
