@@ -76,4 +76,34 @@ fi
 read -p "Username: " USERNAME
 
 
-curl -i -u "$USERNAME" -d "{ \"name\": \"$NAME\", \"description\": \"$DESCRIPTION\", \"homepage\": \"$WEBPAGE\", \"private\": $PRIVATE, \"has_issues\": $ISSUE, \"has_wiki\": $WIKI, \"has_downloads\": $DOWNLOADS }" https://api.github.com/user/repos
+curl -i -u "$USERNAME" -d "{ \"name\": \"$NAME\", \"description\": \"$DESCRIPTION\", \"homepage\": \"$WEBPAGE\", \"private\": $PRIVATE, \"has_issues\": $ISSUE, \"has_wiki\": $WIKI, \"has_downloads\": $DOWNLOADS }" https://api.github.com/user/repos > githubresponce.log
+
+
+
+
+git rev-parse --git-dir >& /dev/null
+if [[ $? == 0 ]] # Check last error to see if this is a git repo
+then
+	URLBEGIN="git@github.com:"
+	SLASH="/"
+	DOTGIT=".git"
+	URL = $URLBEGIN$USERNAME$SLASH$NAME$DOTGIT
+
+	git remote show origin >& /dev/null
+	if [[ $? == 0 ]]
+	then
+		git remote add origin $URL
+		REMOTELOCATION="origin"
+	else
+		git remote add github $URL
+		REMOTELOCATION="github"
+	fi
+
+	# get the current branch of the git repo
+	ref=$(git symbolic-ref HEAD 2> /dev/null) || return
+	# push the current branch to github
+	git push $REMOTELOCATION "${ref#refs/heads/}"
+
+fi
+
+
