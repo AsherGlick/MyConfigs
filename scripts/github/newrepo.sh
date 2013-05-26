@@ -93,7 +93,7 @@ then
 	URLBEGIN="git@github.com:"
 	SLASH="/"
 	DOTGIT=".git"
-	URL = $URLBEGIN$USERNAME$SLASH$NAME$DOTGIT
+	URL=$URLBEGIN$USERNAME$SLASH$NAME$DOTGIT
 
 	git remote show origin >& /dev/null
 	if [[ $? == 0 ]]
