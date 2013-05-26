@@ -1,3 +1,10 @@
+#/bin/sh
+# The line help function is a single line help file for each script / funciton
+if [ $1 = "--line-help" ]; then
+	echo "newrepo - Create a new repo and add it to remotes"
+	exit
+fi
+
 # These are the default values for the settings of the new repo, if you want to change the default settings
 # change them here
 PRIVATE_REPO_DEFAULT='false'

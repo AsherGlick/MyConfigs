@@ -1,5 +1,11 @@
 #!/bin/sh
 
+# The line help function is a single line help file for each script / funciton
+if [ $1 = "--line-help" ]; then
+	echo "newkey - push a pubkey to your github account (automaticly create one)"
+	exit
+fi
+
 # this script will add your computer's pubkey to your github account
 # if you dont have a key yet it will prompt you to generate one
 
