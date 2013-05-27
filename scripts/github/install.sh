@@ -3,7 +3,7 @@
 # The line help function is a single line help file for each script / funciton
 if [ $# != 0 ]; then
 	if [ $1 = "--line-help" ]; then
-		echo "install - IN PROGRESS"
+		echo "install - Put a symlink for github.sh in /usr/bin/"
 		exit
 	fi
 fi
