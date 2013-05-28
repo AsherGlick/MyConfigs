@@ -188,9 +188,32 @@ def linkFiles(localFile, targetFile):
 if __name__ == "__main__":
     if len(sys.argv) >= 2:
         if sys.argv[1] == "backup":
-            cycleFiles("Beginning Backup", backupCopy, verbose=False, sucessMessage="Backed Up")
+            if len(sys.argv) == 3:
+                localFile = sys.argv[2]
+                if localFile in data:
+                    path = os.path.expanduser(data[localFile])
+                    localPath = os.path.expanduser("configs/"+localFile)
+                    localPath = os.path.abspath(localPath)
+                    backupCopy(localPath, path)
+                    cycleFiles("Backing Up Files", nullFunction, verbose=False, sucessMessage="Different Files")
+                else:
+                    print "Unknown File to Restore"
+            else:
+                cycleFiles("Beginning Backup", backupCopy, verbose=False, sucessMessage="Backed Up")
         elif sys.argv[1] == "restore":
-            cycleFiles("Beginning Restore", restoreCopy, verbose=False, sucessMessage="Extracted")
+            if len(sys.argv) == 3:
+                localFile = sys.argv[2]
+                if localFile in data:
+                    path = os.path.expanduser(data[localFile])
+                    localPath = os.path.expanduser("configs/"+localFile)
+                    localPath = os.path.abspath(localPath)
+                    restoreCopy(localPath, path)
+                    cycleFiles("Restoring Files", nullFunction, verbose=False, sucessMessage="Different Files")
+                else:
+                    print "Unknown File to Restore"
+            else:
+                cycleFiles("Beginning Restore", restoreCopy, verbose=False, sucessMessage="Extracted")
+
         elif sys.argv[1] == "link":
             if len(sys.argv) == 3:
                 localFile = sys.argv[2]
