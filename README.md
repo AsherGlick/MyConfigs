@@ -28,4 +28,4 @@ which is a JSON file containing all the entries on which files to back up
 backup and restoring of files as well as the ability to create a symlink for a
 file preventing it from ever being out of sync with this repository
 
-![Running Packsrips.py])(http://i.imgur.com/fCPQ5En.png)
+![Running Packsrips.py](http://i.imgur.com/fCPQ5En.png)
