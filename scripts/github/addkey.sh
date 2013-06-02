@@ -3,7 +3,7 @@
 # The line help function is a single line help file for each script / funciton
 if [ $# != 0 ]; then
 	if [ $1 = "--line-help" ]; then
-		echo "newkey - push a pubkey to your github account (automaticly create one)"
+		echo "addkey - push a pubkey to your github account (automaticly create one)"
 		exit
 	fi
 fi
