@@ -98,7 +98,7 @@ alias gc="git commit -m"
 alias gk="git checkout"
 alias gd="git diff"
 alias gl="git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --"
-gp() { git pull origin `currentBranch`; git push origin `currentBranch` }
+gp() { git pull origin `currentBranch`; git push --set-upstream origin `currentBranch` }
 
 ############################### TOGGLE GIT PROMPT ##############################
 # This function toggles the git prompt on or off in case it gets annoying      #

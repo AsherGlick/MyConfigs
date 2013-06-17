@@ -33,18 +33,18 @@ import os
 import sys
 import filecmp
 
-json_data=open('scriptconfig')
+json_data = open('scriptconfig')
 
 data = json.load(json_data)
 
 json_data.close()
 
 # some simple colors for the terminal
-OKGREEN = '\033[1;32m' # green 32
-WARNING = '\033[1;33m' # yellow 33
-FAIL = '\033[1;31m'    # red 31
-LINKED = '\033[1;34m'  # blue 34
-ENDC = '\033[0m'
+OKGREEN = '\033[1;32m'  # green 32
+WARNING = '\033[1;33m'  # yellow 33
+FAIL = '\033[1;31m'     # red 31
+LINKED = '\033[1;34m'   # blue 34
+ENDC = '\033[0m'        # reset
 
 
 ############################### GET TERMINAL SIZE ##############################
@@ -54,11 +54,14 @@ ENDC = '\033[0m'
 def getTerminalSize():
     import os
     env = os.environ
+
     def ioctl_GWINSZ(fd):
         try:
-            import fcntl, termios, struct, os
-            cr = struct.unpack('hh', fcntl.ioctl(fd, termios.TIOCGWINSZ,
-        '1234'))
+            import fcntl
+            import termios
+            import struct
+            #import os
+            cr = struct.unpack('hh', fcntl.ioctl(fd, termios.TIOCGWINSZ, '1234'))
         except:
             return None
         return cr
@@ -107,7 +110,7 @@ def cycleFiles(beginningComment, functiontorun, verbose=False, sucessMessage="Su
         filesDiffer = True
 
         try:
-            filesDiffer = not filecmp.cmp(path,localPath)
+            filesDiffer = not filecmp.cmp(path, localPath)
         except:
             pass
 
@@ -117,7 +120,7 @@ def cycleFiles(beginningComment, functiontorun, verbose=False, sucessMessage="Su
             color = OKGREEN
             try:
                 if filesDiffer:
-                    functiontorun(localPath,path)
+                    functiontorun(localPath, path)
                 else:
                     info = "No Change"
                     color = WARNING
@@ -127,7 +130,7 @@ def cycleFiles(beginningComment, functiontorun, verbose=False, sucessMessage="Su
             except:
                 info = "Failed, Unknown Error"
                 color = FAIL
-        
+
         # the taget is a symbolic link
         else:
             if symbolicLink == localPath:
@@ -136,49 +139,81 @@ def cycleFiles(beginningComment, functiontorun, verbose=False, sucessMessage="Su
             else:
                 info = "Bad Link to:" + symbolicLink
                 color = LINKED
-                
-        
 
-        output = " " +color + element + ENDC + " " +("."*(width-6-len(element)-len(info)) ) + color + " ["+info+"]" + ENDC 
-        if(verbose): output += "\n  " + path
+        output = " " + color + element + ENDC + " " + ("."*(width-6-len(element)-len(info))) + color + " ["+info+"]" + ENDC
+        if(verbose):
+            output += "\n  " + path
         print output
+
 
 ################################# RESTORE COPY #################################
 # This function copys the file from the the local file to the target file in   #
 # effect "restoring" the file to the machine                                   #
 ################################################################################
-def restoreCopy(localFile,targetFile):
-    shutil.copyfile(localFile,targetFile)
+def restoreCopy(localFile, targetFile):
+    shutil.copyfile(localFile, targetFile)
+
 
 ################################## BACKUP COPY #################################
 # This function copys the target file into the local directory in order to     #
 # back it up so that it is saved in the repo                                   #
 ################################################################################
 def backupCopy(localFile, targetFile):
-    shutil.copyfile(targetFile,localFile)
+    shutil.copyfile(targetFile, localFile)
+
+
 ################################# NULL FUNCTION ################################
 # This function does nothing and is ment to be used for when the user just     #
 # wants to check to see if the file is different or the same                   #
 ################################################################################
-def nullFunction(localFile,targetFile):
+def nullFunction(localFile, targetFile):
     pass
 
-def linkFiles(localFile,targetFile):
+
+################################## LINK FILES ##################################
+# This function creates a symlink at the target file pointing at the file      #
+# stored in the configurations directory allowing for the files to allways be  #
+# synced                                                                       #
+################################################################################
+def linkFiles(localFile, targetFile):
     #pass
     print localFile
     print targetFile
     if os.path.exists(targetFile):
         os.remove(targetFile)
-    os.symlink(localFile,targetFile)
+    os.symlink(localFile, targetFile)
 
 
 ## the main statement that handles the arguments and calls the apropriate functions
 if __name__ == "__main__":
     if len(sys.argv) >= 2:
         if sys.argv[1] == "backup":
-            cycleFiles("Beginning Backup", backupCopy, verbose=False, sucessMessage="Backed Up")
+            if len(sys.argv) == 3:
+                localFile = sys.argv[2]
+                if localFile in data:
+                    path = os.path.expanduser(data[localFile])
+                    localPath = os.path.expanduser("configs/"+localFile)
+                    localPath = os.path.abspath(localPath)
+                    backupCopy(localPath, path)
+                    cycleFiles("Backing Up Files", nullFunction, verbose=False, sucessMessage="Different Files")
+                else:
+                    print "Unknown File to Restore"
+            else:
+                cycleFiles("Beginning Backup", backupCopy, verbose=False, sucessMessage="Backed Up")
         elif sys.argv[1] == "restore":
-            cycleFiles("Beginning Restore", restoreCopy, verbose=False, sucessMessage="Extracted")
+            if len(sys.argv) == 3:
+                localFile = sys.argv[2]
+                if localFile in data:
+                    path = os.path.expanduser(data[localFile])
+                    localPath = os.path.expanduser("configs/"+localFile)
+                    localPath = os.path.abspath(localPath)
+                    restoreCopy(localPath, path)
+                    cycleFiles("Restoring Files", nullFunction, verbose=False, sucessMessage="Different Files")
+                else:
+                    print "Unknown File to Restore"
+            else:
+                cycleFiles("Beginning Restore", restoreCopy, verbose=False, sucessMessage="Extracted")
+
         elif sys.argv[1] == "link":
             if len(sys.argv) == 3:
                 localFile = sys.argv[2]
@@ -186,7 +221,7 @@ if __name__ == "__main__":
                     path = os.path.expanduser(data[localFile])
                     localPath = os.path.expanduser("configs/"+localFile)
                     localPath = os.path.abspath(localPath)
-                    linkFiles(localPath,path)
+                    linkFiles(localPath, path)
                     cycleFiles("Linking Files", nullFunction, verbose=True, sucessMessage="Different Files")
                 else:
                     print "Unknown File to Link"
