@@ -126,6 +126,7 @@ isrepo () {
   fi;
 }
 
+alias 'ps?'="ps ax | grep"
 
 # COLORS
 # enable color support of ls and also add handy aliases
@@ -180,7 +181,7 @@ newdir() {
 removekey() {
   if [ $# -eq 1 ]
   then
-    ssh-keygen -f "/home/vault/.ssh/known_hosts" -R $1
+    ssh-keygen -R $1
   else
     echo "removekey removes an ssh key from the known hosts file"
     echo "Usage: removekey 'Key Name / IP Address'"
