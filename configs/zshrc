@@ -114,6 +114,11 @@ git_prompt(){
 }
 alias gpr="git_prompt"
 
+presentation() {
+  PROMPT="
+   [User@Computer] ~PATH "
+}
+
 ####
 # SVN / GIT mirror commands
 ###
