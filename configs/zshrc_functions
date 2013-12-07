@@ -1,0 +1,62 @@
+################################################################################
+############################## HELPFUL FUNCTIONS ###############################
+################################################################################
+
+#################################### EXTRACT ###################################
+# The extract function extracts a file by finding the right program to extract #
+# it with and running the function. Run this function by typing                #
+# ~$ extract filetoextract.extention                                           #
+################################################################################
+extract () {
+  if [ -f $1 ] ; then
+case $1 in
+          *.tar.bz2) tar xvjf $1 ;;
+          *.tar.gz) tar xvzf $1 ;;
+          *.bz2) bunzip2 $1 ;;
+          *.rar) rar x $1 ;;
+          *.gz) gunzip $1 ;;
+          *.tar) tar xvf $1 ;;
+          *.tbz2) tar xvjf $1 ;;
+          *.tgz) tar xvzf $1 ;;
+          *.zip) unzip $1 ;;
+          *.Z) uncompress $1 ;;
+          *.7z) 7z x $1 ;;
+          *) echo "don't know how to extract '$1'..." ;;
+      esac
+else
+echo "'$1' is not a valid file!"
+  fi
+}
+
+
+newdir() {
+  mkdir $1
+  cd $1
+}
+
+# Removes an ssh key from the known hosts library
+removekey() {
+  if [ $# -eq 1 ]
+  then
+ssh-keygen -R $1
+  else
+echo "removekey removes an ssh key from the known hosts file"
+    echo "Usage: removekey 'Key Name / IP Address'"
+  fi
+}
+
+
+# view a nicely formatted version of a CSV file piped into less
+function csview {
+  sed 's/,,/, ,/g;s/,,/, ,/g' $1 | column -s, -t | less -N -S
+}
+
+################################# PRESENTATION #################################
+# This function enters the prompt into a presentation mode that changes the    #
+# shown values from the actual values to temporary / imaginary settings that   #
+# will not give away any potential security information                        #
+################################################################################
+presentation() {
+  PROMPT="
+[User@Computer] ~PATH "
+}

@@ -1,3 +1,7 @@
+fpath=( ~/zsh/completion $fpath )
+
+
+
 typeset -ga preexec_functions # set a global array named preexex_functions
 typeset -ga precmd_functions
 typeset -ga chpwd_functions
@@ -10,195 +14,96 @@ autoload -Uz promptinit
 promptinit
 autoload -U colors && colors
 
+bold() {
+  echo "%B$1%b"
+}
+underline() {
+  echo "%U$1%u"
+}
+bold_underline() {
+  echo $(bold $(underline $1))
+}
+forground() {
+  echo %{$fg[$1]%}$2
+}
+
 ########################## CUSTOM PROMPT CONFIGURATION #########################
-# %d     Your current working directory relative to /home/                     #
-# %~     Your current working directory relative to /home/member/u/username    #
-# %B %b  Begin and end bold print                                              #
-# %U %u  Begin and end underlined print                                        #
-# %M     server name  e.g: prodigy.redbrick.dcu.ie                             #
-# %m     The part of the hostname up to the first dot  e.g: prodigy            #
-# %n     Your login name                                                       #
-# %T     system time in HH:mm format                                           #
-# %*     system time in HH:mm:ss format                                        #
-# %D     Todays date in YY-MM-DD format                                        #
-# %l     Your current tty  e.g: pts/100                                        #
+# %d Your current working directory relative to /home/                         #
+# %~ Your current working directory relative to /home/member/u/username        #
+# %B %b Begin and end bold print                                               #
+# %U %u Begin and end underlined print                                         #
+# %M server name e.g: prodigy.redbrick.dcu.ie                                  #
+# %m The part of the hostname up to the first dot e.g: prodigy                 #
+# %n Your login name                                                           #
+# %T system time in HH:mm format                                               #
+# %* system time in HH:mm:ss format                                            #
+# %D Todays date in YY-MM-DD format                                            #
+# %l Your current tty e.g: pts/100                                             #
 ################################################################################
-PROMPT="%B%{$fg[green]%}[%n@%m]%{$fg[blue]%}%~%{$reset_color%}%#%b "
 
-################################################################################
-################################# GIT SETTINGS #################################
-################################################################################
- # get the current branch name
-currentBranch() {
-	ref=$(git symbolic-ref HEAD 2> /dev/null) || return
-	echo "${ref#refs/heads/}"
-}
-
-################################## GIT PROMPT ##################################
-# The git prompt function gathers the current branch and formats it for        #
-# display. Depending on the status of the repo it changes the color of the     #
-# branch name.                                                                 #
-################################################################################
-function __git_prompt {
-  local DIRTY="%{$fg[red]%}"
-  local CLEAN="%{$fg[green]%}"
-  local UNMERGED="%{$fg[yellow]%}"
-  local RESET="%{$terminfo[sgr0]%}"
-  git rev-parse --git-dir >& /dev/null
-  if [[ $? == 0 ]] # Check last error to see if this is a git repo
-  then
-    echo -n "["
-    if [[ `git ls-files -u >& /dev/null` == '' ]]
-    then
-      git diff --quiet >& /dev/null
-      if [[ $? == 1 ]]
-      then
-        echo -n $DIRTY
-      else
-        git diff --quiet >& /dev/null
-        if [[ $? == 1 ]]
-        then
-          echo -n $DIRTY
-        else
-          echo -n $CLEAN
-        fi
-      fi
-    else
-      echo -n $UNMERGED
-    fi
-    echo -n `currentBranch`
-    echo -n $RESET
-    echo -n "]"
-  fi
-  
-  #svn checking
-  svn info >& /dev/null
-  if [[ $? == 0 ]]
-  then
-    echo -n "{svn}"
-  else
-    echo ""
-  fi
-## git rev-list -1 --grep='git-svn-id' HEAD ## will check to see if the repo is a git-svn repo
-
-
-}
-
-## set up the right prompt with git
-RPROMPT='$(__git_prompt)'
-
-
-################################## GIT ALIASES #################################
-# These are a list of git aliaes for git shortcuts                             #
-################################################################################
-alias ga="git add"
-alias gd="git diff"
-alias gs="git status"
-alias gc="git commit -m"
-alias gk="git checkout"
-alias gd="git diff"
-alias gl="git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --"
-gp() { git pull origin `currentBranch`; git push --set-upstream origin `currentBranch` }
-alias gb="git branch"
-alias gi="git ignore" # a custom git alias stored in gitconfig
-
-############################### TOGGLE GIT PROMPT ##############################
-# This function toggles the git prompt on or off in case it gets annoying      #
-# after a while                                                                #
-################################################################################
-git_prompt(){
-	if [ "$RPROMPT" = "" ];
-	then
-		RPROMPT='$(__git_prompt)'
-	else
-		RPROMPT=""
-	fi;
-}
-alias gpr="git_prompt"
-
-presentation() {
-  PROMPT="
-   [User@Computer] ~PATH "
-}
-
-####
-# SVN / GIT mirror commands
-###
-isrepo () {
-  if [ "`__git_prompt`" = "" ];
-  then
-    echo "NO"
-  else
-    echo "YES"
-  fi;
-}
-
-alias 'ps?'="ps ax | grep"
-
-# COLORS
-# enable color support of ls and also add handy aliases
-if [ -x /usr/bin/dircolors ]; then
-    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
-    alias ls='ls --color=auto'
-    #alias dir='dir --color=auto'
-    #alias vdir='vdir --color=auto'
-
-    alias grep='grep --color=auto'
-    alias fgrep='fgrep --color=auto'
-    alias egrep='egrep --color=auto'
+# Get the name of the current screen session (if there is one)
+screen_prompt=""
+if [[ -n "$STY" ]]
+then
+  screen_color="%{$bg[cyan]$fg[black]%}"
+  screen_name=`echo "$STY" | cut -d '.' -f 2`
+  screen_prompt=$screen_color$screen_name%{$reset_color%}
 fi
 
+# Get the user and machine values and color
+username=$(bold $(forground green '%n'))
+machine_name=$(bold $(forground green '%m'))
+open_bracket=$(forground white '[')
+close_bracket=$(forground white ']')
+at_sign=$(forground white '@')
+machine_prompt=$open_bracket$username$at_sign$machine_name$close_bracket%{$reset_color%}
+
+# Get the current path
+current_path=$(bold $(forground blue '%~'))
+
+# Set the full promt variable
+PROMPT="$screen_prompt$machine_prompt$current_path%{$reset_color%}%# "
+
+
 ################################################################################
-############################## HELPFUL FUNCTIONS ###############################
+#################################### COLORS ####################################
 ################################################################################
+# enable color support of ls and also add handy aliases
+if [ -x /usr/bin/dircolors ]; then
+  test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+  alias ls='ls --color=auto'
+  #alias dir='dir --color=auto'
+  #alias vdir='vdir --color=auto'
 
-#################################### EXTRACT ###################################
-# The extract function extracts a file by finding the right program to extract #
-# it with and running the function. Run this function by typing                #
-# ~$ extract filetoextract.extention                                           #
+  alias grep='grep --color=auto'
+  alias fgrep='fgrep --color=auto'
+  alias egrep='egrep --color=auto'
+fi
+
+
 ################################################################################
-extract () {
-  if [ -f $1 ] ; then
-case $1 in
-          *.tar.bz2) tar xvjf $1 ;;
-          *.tar.gz) tar xvzf $1 ;;
-          *.bz2) bunzip2 $1 ;;
-          *.rar) rar x $1 ;;
-          *.gz) gunzip $1 ;;
-          *.tar) tar xvf $1 ;;
-          *.tbz2) tar xvjf $1 ;;
-          *.tgz) tar xvzf $1 ;;
-          *.zip) unzip $1 ;;
-          *.Z) uncompress $1 ;;
-          *.7z) 7z x $1 ;;
-          *) echo "don't know how to extract '$1'..." ;;
-      esac
-else
-echo "'$1' is not a valid file!"
-  fi
-}
+############################### EXTERNAL SOURCES ###############################
+################################################################################
+source ~/.zshrc_git # source all the git specific commands
+source ~/.zshrc_functions # external useful functions for general use
 
-alias randpass="tr -dc A-Za-z0-9 </dev/urandom |  head -c 16"
 
-newdir() {
-  mkdir $1
-  cd $1
-}
-
-# Removes an ssh key from the known hosts library
-removekey() {
-  if [ $# -eq 1 ]
-  then
-    ssh-keygen -R $1
-  else
-    echo "removekey removes an ssh key from the known hosts file"
-    echo "Usage: removekey 'Key Name / IP Address'"
-  fi
-}
-
+################################################################################
+############################### GENERAL ALIASES ################################
+################################################################################
 alias reloadrc="source ~/.zshrc"
+alias 'ps?'="ps ax | grep"
+alias gscrn='~/scripts/screenSwitcher/screenSwitcher.pl'
+alias sls="screen -ls"
+alias sr="screen -R"
 
-alias s="sublime" # because it is rediculous...
+
+################################################################################
+############################### GENERAL SETTINGS ###############################
+################################################################################
+export EDITOR=nano
+export LD_LIBRARY_PATH="/usr/X11R6/lib:"$LD_LIBRARY_PATH
+export NYTPROF=start=no
 
 ################################################################################
 ########################### PRE CONFIGURED SETTINGS ############################
@@ -213,13 +118,15 @@ HISTSIZE=1000
 SAVEHIST=1000
 HISTFILE=~/.zsh_history
 
+
+
 # Use modern completion system
 autoload -Uz compinit
 compinit
 
 zstyle ':completion:*' auto-description 'specify: %d'
 zstyle ':completion:*' completer _expand _complete _correct _approximate
-zstyle ':completion:*' format 'Completing %d'
+zstyle ':completion:*' format 'Completing %d' # text to display at the top of the autocomplete selectoins (IDK what %d is yet, the id of what it is completeing but not how to set it)
 zstyle ':completion:*' group-name ''
 zstyle ':completion:*' menu select=2
 eval "$(dircolors -b)"
@@ -234,6 +141,3 @@ zstyle ':completion:*' verbose true
 
 zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([0-9]#)*=0=01;31'
 zstyle ':completion:*:kill:*' command 'ps -u $USER -o pid,%cpu,tty,cputime,cmd'
-
-### Added by the Heroku Toolbelt
-export PATH="/usr/local/heroku/bin:$PATH"
