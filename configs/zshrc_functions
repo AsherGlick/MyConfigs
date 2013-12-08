@@ -60,3 +60,12 @@ presentation() {
   PROMPT="
 [User@Computer] ~PATH "
 }
+
+################################ RANDOM PASSWORD ###############################
+# This function generates a randome base64 16 character long password for you  #
+# to use. The password should probaly be stored in a keyring as it is sorta    #
+# hard to remember in my oppinion. This is mainly for use when creating        #
+# config files that contain passwords that only computers use to log into      #
+# other computers                                                              #
+################################################################################
+alias randpass="tr -dc A-Za-z0-9 </dev/urandom |  head -c 16"
