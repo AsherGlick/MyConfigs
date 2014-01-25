@@ -21,20 +21,15 @@ function __git_prompt {
   if [[ $? == 0 ]] # Check last error to see if this is a git repo
   then
     echo -n "["
-    if [[ `git ls-files -u >& /dev/null` == '' ]]
+    # echo -n "[+%% "
+    if [[ `git ls-files -u` == '' ]]
     then
       git diff --quiet >& /dev/null
-        if [[ $? == 1 ]]
-        then
-          echo -n $DIRTY
-        else
-          git diff --quiet >& /dev/null
-        if [[ $? == 1 ]]
-        then
-          echo -n $DIRTY
-        else
-          echo -n $CLEAN
-        fi
+      if [[ $? == 1 ]]
+      then
+        echo -n $DIRTY
+      else
+        echo -n $CLEAN
       fi
     else
       echo -n $UNMERGED
@@ -42,6 +37,7 @@ function __git_prompt {
     echo -n `currentBranch`
     echo -n $RESET
     echo -n "]"
+    # echo -n " 9]"
   fi 
   #svn checking
   svn info >& /dev/null
