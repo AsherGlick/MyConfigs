@@ -105,6 +105,13 @@ export EDITOR=nano
 export LD_LIBRARY_PATH="/usr/X11R6/lib:"$LD_LIBRARY_PATH
 export NYTPROF=start=no
 
+
+################################################################################
+##################### LOCATE PACKAGE FOR UNKNOWN COMMANDS ######################
+################################################################################
+# locates and displays the package info for any commands that are unknown      # 
+source /etc/zsh_command_not_found
+
 ################################################################################
 ########################### PRE CONFIGURED SETTINGS ############################
 ################################################################################
