@@ -56,15 +56,19 @@ installExtraFigletFonts() {
 # Add the additional fonts to 
 postFunctionList+=(installExtraFigletFonts)
 
+################################################################################
+################################# SUB SCRIPTS ##################################
+################################################################################
 
 ################################################################################
 ################################## EXECUTION ###################################
 ################################################################################
 
-if [ $parentscript!='HEADLESSGRAPHICSTOOLS' ]; then
+if [ $parentscript == 'HEADLESSGRAPHICSTOOLS' ]; then
+
 	# install all the packages on the list
-	echo apt-get install `printf -- '%s\n' ${packageList[@]}`
+	apt-get install `printf -- '%s\n' ${packageList[@]}`
 
 	# run the additional functions
-	echo ${postFunctionList[@]}
+	${postFunctionList[@]}
 fi

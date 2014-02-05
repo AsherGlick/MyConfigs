@@ -1,21 +1,22 @@
 #!/bin/bash
 
 if [ -z $parentscript ]; then
-	parentscript='GRAPHICSTOOLS'
+	parentscript='DEVTOOLS'
 fi
 
 ################################################################################
 ################################# PACKAGE LIST #################################
 ################################################################################
 packageList+=(
-	'dia'             # Chart and graph editor
-	'blender'         # 3D model editor (+more 3d stuff)
-	'inkscape'        # Vector Image editing
-	'gimp'            # Raster Image editing
-	'vlc'             # Video playing
-	'audacity'        # Audio recording
-	'recordmydesktop' # As of 2012 the best desktop recorder for linux I have found
-	'openshot'        # Video Editor
+	'arduino'
+	'eclipse'
+
+	'libsdl1.2-dev'
+	'libsdl-mixer1.2-dev'
+	'libsdl-image1.2-dev'
+	'libstd-ttf2.0-dev'
+	'python-qt4-dev'
+	'libqt4-dev'
 )
 
 ################################################################################
@@ -29,13 +30,13 @@ packageList+=(
 ################################################################################
 ################################# SUB SCRIPTS ##################################
 ################################################################################
-source headlessGraphicsTools.sh
+source headlessDevTools.sh
 
 ################################################################################
 ################################## EXECUTION ###################################
 ################################################################################
 
-if [ $parentscript == 'GRAPHICSTOOLS' ]; then
+if [ $parentscript == 'DEVTOOLS' ]; then
 	# install all the packages on the list
 	apt-get install `printf -- '%s\n' ${packageList[@]}`
 

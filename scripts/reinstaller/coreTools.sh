@@ -1,21 +1,26 @@
 #!/bin/bash
 
 if [ -z $parentscript ]; then
-	parentscript='GRAPHICSTOOLS'
+	parentscript='CORETOOLS'
 fi
 
 ################################################################################
 ################################# PACKAGE LIST #################################
 ################################################################################
 packageList+=(
-	'dia'             # Chart and graph editor
-	'blender'         # 3D model editor (+more 3d stuff)
-	'inkscape'        # Vector Image editing
-	'gimp'            # Raster Image editing
-	'vlc'             # Video playing
-	'audacity'        # Audio recording
-	'recordmydesktop' # As of 2012 the best desktop recorder for linux I have found
-	'openshot'        # Video Editor
+	'man'     # an interface to the on-line reference manuals
+	'git'     # Fast Scalable distributed revision control stystem
+	'screen'  # Screen manager withe TC100/ANSI terminal emulation
+	'tmux'    # Terminal Multiplexer 
+	'sudo'    # Execute command as another user
+	'zsh'     # the Z shell
+	'grep'    # print lines matching a pattern
+	'sed'     # stream editor for filtering and transforming text
+	'dialog'  # display dialog boxes from shell scripts
+	'less'    # Better more, view scrollable files
+	'nano'    # Nano's ANOther editor, an enhanced free Pico clone
+	'ssh'     # OPENSSH SSH client (remote login program)
+	'wget'    # The non-interactive network downloader
 )
 
 ################################################################################
@@ -29,17 +34,15 @@ packageList+=(
 ################################################################################
 ################################# SUB SCRIPTS ##################################
 ################################################################################
-source headlessGraphicsTools.sh
 
 ################################################################################
 ################################## EXECUTION ###################################
 ################################################################################
 
-if [ $parentscript == 'GRAPHICSTOOLS' ]; then
+if [ $parentscript == 'CORETOOLS' ]; then
 	# install all the packages on the list
 	apt-get install `printf -- '%s\n' ${packageList[@]}`
 
 	# run the additional functions
 	${postFunctionList[@]}
 fi
-
