@@ -9,7 +9,7 @@ fi
 ################################################################################
 packageList+=(
 	'build-essential'
-	'lib-boost'
+	'libboost-all-dev'
 	'g++'
 	'make'
 	'cmake'
@@ -20,10 +20,11 @@ packageList+=(
 	'perl'
 	'nodejs'
 	'nodejs-dev'
-	'opendjk-6-jre-headless'
+	'openjdk-6-jre-headless'
 	'openjdk-6-jdk'
 	'python-django'
 	'pypy'
+	'ruby'
 )
 
 ################################################################################

@@ -8,7 +8,7 @@ fi
 ################################# PACKAGE LIST #################################
 ################################################################################
 packageList+=(
-	'man'     # an interface to the on-line reference manuals
+	'man-db'  # an interface to the on-line reference manuals
 	'git'     # Fast Scalable distributed revision control stystem
 	'screen'  # Screen manager withe TC100/ANSI terminal emulation
 	'tmux'    # Terminal Multiplexer 
