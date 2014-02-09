@@ -68,4 +68,13 @@ presentation() {
 # config files that contain passwords that only computers use to log into      #
 # other computers                                                              #
 ################################################################################
-alias randpass="tr -dc A-Za-z0-9 </dev/urandom |  head -c 16"
+alias randpass="tr -dc A-Za-z0-9 </dev/urandom |  head -c 32"
+
+function randpass2() {
+  pass_length=$1
+  if [ -z $1 ]; then
+    pass_length="32"
+  fi
+  tr -dc !-~ < /dev/urandom | head -c $pass_length
+  echo ""
+}
