@@ -8,6 +8,18 @@ typeset -ga chpwd_functions
 setopt prompt_subst
 
 ################################################################################
+############################ CONFIGURABLE SETTIGNS #############################
+################################################################################
+
+# Any commands that run for longer then this number of seconds will get a
+# execution time printed to the terminal uppon completion
+HIDE_TIME_THRESHOLD=5
+
+
+
+
+
+################################################################################
 ############################# PROMPT CONFIGURATION #############################
 ################################################################################
 autoload -Uz promptinit
@@ -27,6 +39,8 @@ forground() {
   echo %{$fg[$1]%}$2
 }
 
+n="
+"
 ########################## CUSTOM PROMPT CONFIGURATION #########################
 # %d Your current working directory relative to /home/                         #
 # %~ Your current working directory relative to /home/member/u/username        #
@@ -61,8 +75,64 @@ machine_prompt=$open_bracket$username$at_sign$machine_name$close_bracket%{$reset
 # Get the current path
 current_path=$(bold $(forground blue '%~'))
 
+# Get the current time
+prompt_date=$( bold $(forground grey "%D{%H:%M:%S}"))
+
+
+# the function that executes right before any ZSH command executes
+function preexec() {
+  timer=${timer:-$SECONDS}
+  commandrun='Y'
+}
+
+
+# the function that executes right before and ZSH prompt is displayed
+function precmd() {
+  resultcode=$?
+  preprompt=""
+
+  # if no command has been run dont display the error code again
+  if [[ $commandrun == "Y" ]]; then
+    commandrun='N'
+  else
+    resultcode=0
+  fi
+
+  # If there is an errorcode (not 0) then print it, otherwise don't
+  if [ $resultcode -ne 0 ]; then
+    preerror=$(forground red "$resultcode")
+    preprompt="${preprompt} with Error $preerror$reset_color"
+  fi
+
+  # Output Runtime of previous command if it is longer then the threshold
+  if [ $timer ]; then
+    timer_show=$(($SECONDS - $timer))
+    if [ $timer_show -gt $HIDE_TIME_THRESHOLD ]; then
+
+
+      # Format the time
+      pretime=$(forground cyan "$(format_seconds $timer_show)" )
+      preprompt="${preprompt} in $pretime$reset_color s"
+    fi
+    unset timer
+  fi
+
+  if [[ "$preprompt" != "" ]]
+  then
+    print -rP "Command Executed$preprompt"
+  fi
+}
+
+
 # Set the full promt variable
-PROMPT="$screen_prompt$machine_prompt$current_path%{$reset_color%}%# "
+PROMPT="$screen_prompt$prompt_date$machine_prompt$current_path%{$reset_color%}%# "
+
+
+# Make the prompt refresh every second to update the time in $prompt_date
+TMOUT=1
+TRAPALRM() {
+    zle reset-prompt
+}
 
 
 ################################################################################
@@ -87,6 +157,10 @@ fi
 source ~/.zshrc_git # source all the git specific commands
 source ~/.zshrc_functions # external useful functions for general use
 
+for f in ~/.zshrc_*; do
+  echo source $f;
+done
+
 
 ################################################################################
 ############################### GENERAL ALIASES ################################
@@ -104,6 +178,13 @@ alias sr="screen -R"
 export EDITOR=nano
 export LD_LIBRARY_PATH="/usr/X11R6/lib:"$LD_LIBRARY_PATH
 export NYTPROF=start=no
+
+
+################################################################################
+##################### LOCATE PACKAGE FOR UNKNOWN COMMANDS ######################
+################################################################################
+# locates and displays the package info for any commands that are unknown      # 
+source /etc/zsh_command_not_found
 
 ################################################################################
 ########################### PRE CONFIGURED SETTINGS ############################
