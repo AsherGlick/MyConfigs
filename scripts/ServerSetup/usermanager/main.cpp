@@ -19,7 +19,7 @@ using namespace std;
 // Default value for enabling / disabling unicode output
 bool UNICODE_ENABLED = true;
 bool COLOR_ENABLED = TRUE;
-bool VERTICAL_GROUPS = false;
+bool VERTICAL_GROUPS = true;
 int XSCROLLSPEED = 3;
 // vector<string> parseGroup() {
 // }
@@ -191,7 +191,7 @@ int main() {
 
 	// X and Y offsets for viewing data
 	int xOffset = 0;
-	int yOffset = 1;
+	int yOffset = 0;
 
 	int rowSelected = 0;
 
@@ -331,13 +331,21 @@ int main() {
 
 	while(true) {
 		// Draw usernames
+		// wclear(userlist);
 		for(int i = 0 ; i < nlines; i++) {
 			wmove(userlist, i, 0);
 
 			int index = i + yOffset;
 
 			if (index < usergroup.users.size()) {
+
+				if (index == rowSelected) wattron(userlist,A_REVERSE);
 				waddstr(userlist, usergroup.users[index].c_str());
+				if (index == rowSelected) wattroff(userlist,A_REVERSE);
+
+				// Padding to overwrite the ghosting letters from longer usernames
+				waddstr(userlist, string(longestUsername-usergroup.users[index].length(), ' ').c_str());
+
 			}
 
 
@@ -351,26 +359,27 @@ int main() {
 			for (int i = 0; i < groupnameCashe.size(); i++) {
 				wmove(grouplist, i , 0);
 				for (int j = xOffset; j < xOffset + ncols; j++) {
+					if (j < groupnameCashe[i].size()) {
+						char character = groupnameCashe[i][j];
 
-					char character = groupnameCashe[i][j];
+						if (character != '|') {
+							wattron(grouplist, COLOR_PAIR(1));
+							wattron(grouplist, A_BOLD);
+						}
 
-					if (character != '|') {
-						wattron(grouplist, COLOR_PAIR(1));
-						wattron(grouplist, A_BOLD);
-					}
-
-					if (character == '|' && UNICODE_ENABLED) {
-						waddstr(grouplist, "│");
-					}
-					else {
-						waddch(grouplist, character);
-					}
+						if (character == '|' && UNICODE_ENABLED) {
+							waddstr(grouplist, "│");
+						}
+						else {
+							waddch(grouplist, character);
+						}
 
 
 
-					if (character != '|') {
-						wattroff(grouplist, A_BOLD);
-						wattroff(grouplist, COLOR_PAIR(1));
+						if (character != '|') {
+							wattroff(grouplist, A_BOLD);
+							wattroff(grouplist, COLOR_PAIR(1));
+						}
 					}
 				}
 			}
@@ -385,36 +394,48 @@ int main() {
 		wrefresh(grouplist);
 
 		// Draw Mappings
-		for (int i = 0; i < usergroup.mappings.size(); i ++) {
-			wmove(mapping, i ,0);
+		// for (int i = 0; i < usergroup.mappings.size(); i ++) {
+		for(int i = 0 ; i < nlines; i++) {
+			wmove(userlist, i, 0);
+
+			int index = i + yOffset;
+
+			if (index < mappingCashe.size()) {
 
 
-			if (i == rowSelected) wattron(mapping,A_REVERSE);
-			for (int j = xOffset; j < xOffset + ncols; j++) {
-				char character = mappingCashe[i][j];
+				wmove(mapping, i ,0);
 
-				if (character == '|' && UNICODE_ENABLED) {
-					waddstr(mapping, "│");
+
+				if (index == rowSelected) wattron(mapping,A_REVERSE);
+				for (int j = xOffset; j < xOffset + ncols; j++) {
+
+					if ( j < mappingCashe[index].length()) {
+						char character = mappingCashe[index][j];
+
+						if (character == '|' && UNICODE_ENABLED) {
+							waddstr(mapping, "│");
+						}
+						else if (character == '#' && UNICODE_ENABLED && COLOR_ENABLED){
+							wattron(mapping, COLOR_PAIR(2));
+							wattron(mapping, A_BOLD);
+							waddstr(mapping, "█");
+							wattroff(mapping, A_BOLD);
+							wattroff(mapping, COLOR_PAIR(2));
+						}
+						else if (character == 'X' && UNICODE_ENABLED && COLOR_ENABLED){
+							wattron(mapping, COLOR_PAIR(3));
+							wattron(mapping, A_BOLD);
+							waddstr(mapping, "█");
+							wattroff(mapping, A_BOLD);
+							wattroff(mapping, COLOR_PAIR(3));
+						}
+						else {
+							waddch(mapping, character);
+						}
+					}
 				}
-				else if (character == '#' && UNICODE_ENABLED && COLOR_ENABLED){
-					wattron(mapping, COLOR_PAIR(2));
-					wattron(mapping, A_BOLD);
-					waddstr(mapping, "█");
-					wattroff(mapping, A_BOLD);
-					wattroff(mapping, COLOR_PAIR(2));
-				}
-				else if (character == 'X' && UNICODE_ENABLED && COLOR_ENABLED){
-					wattron(mapping, COLOR_PAIR(3));
-					wattron(mapping, A_BOLD);
-					waddstr(mapping, "█");
-					wattroff(mapping, A_BOLD);
-					wattroff(mapping, COLOR_PAIR(3));
-				}
-				else {
-					waddch(mapping, character);
-				}
+				if (index == rowSelected) wattroff(mapping,A_REVERSE);
 			}
-			if (i == rowSelected) wattroff(mapping,A_REVERSE);
 
 		}
 		wrefresh(mapping);
@@ -463,9 +484,25 @@ int main() {
 		}
 
 		// Check Bounds UD
-		if (rowSelected > yOffset + nlines-5) {
+		if (rowSelected < 0) {
+			rowSelected = 0;
+		}
+		if (rowSelected > yOffset + nlines - 3) {
 			++yOffset;
 		}
+		if (yOffset + nlines > usergroup.users.size()) {
+			yOffset = usergroup.users.size()-nlines;
+		}
+		if (rowSelected >= usergroup.users.size()){
+			rowSelected = usergroup.users.size() -1;
+		}
+		if (rowSelected < yOffset + 2) {
+			--yOffset;
+		}
+		if (yOffset < 0 ) {
+			yOffset = 0;
+		}
+
 
 		if (quit) {
 			break;
