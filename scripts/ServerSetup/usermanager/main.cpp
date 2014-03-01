@@ -43,6 +43,10 @@ struct boundingColumns {
 
 vector<string> explode(string line, string delimiter) {
 
+	if (line.length() < delimiter.length()) {
+		return vector<string>();
+	}
+
 	vector<string> output;
 
 	int lastSplit = 0;
@@ -256,13 +260,13 @@ void drawMappingTable(WINDOW * mapping, const vector<string> & mappingCashe, con
 | delegates window size and reacts to user input                               |
 \******************************************************************************/
 int main() {
-	Mode viewMode = GROUP_MODE;
-bool editMode = false;
+
 // 	parseUsers();
 // }
 
 // int dub() {
-
+	Mode viewMode = GROUP_MODE;
+	bool editMode = false;
 
 	// X and Y offsets for viewing data
 	unsigned int xOffset = 0;
