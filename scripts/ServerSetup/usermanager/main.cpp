@@ -107,7 +107,7 @@ UserGroup parseUsers() {
 
 		// cout << argumentList.size() << endl;
 
-		userlist = vector<string>(argumentList.begin()+3, argumentList.end());
+		userlist = explode(argumentList[3], ",");
 
 		// create an object for the group in groupid
 		groupids[groupid] = groupName;
