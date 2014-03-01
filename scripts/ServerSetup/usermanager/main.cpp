@@ -6,6 +6,7 @@
 #include <vector>
 #include <set>
 #include <locale.h>
+#include <algorithm>
 // #include <ifstream>
 #include <fstream>
 
@@ -18,9 +19,12 @@ using namespace std;
 
 // Default value for enabling / disabling unicode output
 bool UNICODE_ENABLED = true;
-bool COLOR_ENABLED = TRUE;
+bool COLOR_ENABLED = true;
 bool VERTICAL_GROUPS = true;
-int XSCROLLSPEED = 3;
+unsigned int XSCROLLSPEED = 3;
+
+
+enum Mode { GROUP_MODE, USER_MODE };
 // vector<string> parseGroup() {
 // }
 
@@ -30,12 +34,19 @@ struct UserGroup {
 	vector< vector< string > > mappings;
 };
 
+struct boundingColumns {
+	unsigned int min;
+	unsigned int max;
+};
+
+
+
 vector<string> explode(string line, string delimiter) {
 
 	vector<string> output;
 
 	int lastSplit = 0;
-	for(int i = 0; i <= line.length()-delimiter.length(); i++) {
+	for(unsigned int i = 0; i <= line.length()-delimiter.length(); i++) {
 		if (line.substr(i,delimiter.length()) == delimiter) {
 			output.push_back(line.substr(lastSplit, i - lastSplit));
 			i += delimiter.length();
@@ -47,6 +58,13 @@ vector<string> explode(string line, string delimiter) {
 
 	return output;
 }
+
+// Centeres a given string for a specified size
+// Returns a left and right space padded string
+string centerString(string input, int size) {
+	return input;
+}
+
 
 UserGroup parseUsers() {
 
@@ -164,8 +182,8 @@ UserGroup parseUsers() {
 
 	output.mappings = vector< vector< string > > ( output.users.size(), vector<string> ( output.groups.size(), " " ) );
 
-	for (int i = 0; i < output.users.size(); i++) {
-		for (int j = 0; j < output.groups.size(); j++) {
+	for (unsigned int i = 0; i < output.users.size(); i++) {
+		for (unsigned int j = 0; j < output.groups.size(); j++) {
 			if (users[output.users[i]].find(output.groups[j]) != users[output.users[i]].end()) {
 				output.mappings[i][j] = "X";
 			}
@@ -178,11 +196,68 @@ UserGroup parseUsers() {
 	return output;
 }
 
+void redrawWindows(WINDOW * mapping, WINDOW * groupnames, WINDOW * usernames, WINDOW * userdata, WINDOW * menubar) {
+
+}
+
+
+
+void drawMappingTable(WINDOW * mapping, const vector<string> & mappingCashe, const unsigned int & xOffset, const unsigned int & yOffset, const unsigned int & ncols, const unsigned int & nlines, const unsigned int & rowSelected, const bool & editMode) {
+	unsigned int columnSelectedMin = 7;
+	unsigned int columnSelectedMax = 12;
+
+	// Draw Mappings
+	for(int i = 0 ; i < nlines; i++) {
+		// wmove(userlist, i, 0);
+
+		unsigned int index = i + yOffset;
+
+		if (index < mappingCashe.size()) {
+			wmove(mapping, i ,0);
+
+
+			if (index == rowSelected && !editMode) wattron(mapping,A_REVERSE);
+			for (unsigned int j = xOffset; j < xOffset + ncols; j++) {
+				if (index == rowSelected && j > columnSelectedMin && j < columnSelectedMax && editMode) wattron(mapping,A_REVERSE);
+				if ( j < mappingCashe[index].length()) {
+					char character = mappingCashe[index][j];
+
+					if (character == '|' && UNICODE_ENABLED) {
+						waddstr(mapping, "│");
+					}
+					else if (character == '#' && UNICODE_ENABLED && COLOR_ENABLED){
+						wattron(mapping, COLOR_PAIR(2));
+						wattron(mapping, A_BOLD);
+						waddstr(mapping, "█");
+						wattroff(mapping, A_BOLD);
+						wattroff(mapping, COLOR_PAIR(2));
+					}
+					else if (character == 'X' && UNICODE_ENABLED && COLOR_ENABLED){
+						wattron(mapping, COLOR_PAIR(3));
+						wattron(mapping, A_BOLD);
+						waddstr(mapping, "█");
+						wattroff(mapping, A_BOLD);
+						wattroff(mapping, COLOR_PAIR(3));
+					}
+					else {
+						waddch(mapping, character);
+					}
+				}
+				if (index == rowSelected && j > columnSelectedMin && j < columnSelectedMax && editMode) wattroff(mapping,A_REVERSE);
+			}
+			if (index == rowSelected && !editMode) wattroff(mapping,A_REVERSE);
+		}
+	}
+	wrefresh(mapping);
+}
+
 /************************************ MAIN ************************************\
 | This function is in charge of handling the main window for ncurses. It       |
 | delegates window size and reacts to user input                               |
 \******************************************************************************/
 int main() {
+	Mode viewMode = GROUP_MODE;
+bool editMode = false;
 // 	parseUsers();
 // }
 
@@ -190,10 +265,13 @@ int main() {
 
 
 	// X and Y offsets for viewing data
-	int xOffset = 0;
-	int yOffset = 0;
+	unsigned int xOffset = 0;
+	unsigned int yOffset = 0;
 
-	int rowSelected = 0;
+	unsigned int columnSelectedMin = 7;
+	unsigned int columnSelectedMax = 12;
+
+	unsigned int rowSelected = 0;
 
 	setlocale(LC_ALL, "");
 
@@ -217,10 +295,9 @@ int main() {
 	if (COLOR_ENABLED) {
 		start_color();
 		use_default_colors();
-		init_pair(1, COLOR_RED, -1);
-		int newcolor;
-		init_pair(2, COLOR_BLUE, -1);
-		init_pair(3, COLOR_GREEN, -1);
+		init_pair(1, COLOR_RED, -1); // Group Names
+		init_pair(2, COLOR_BLUE, -1); // Primary Group ID Color
+		init_pair(3, COLOR_GREEN, -1); // Seconday Group ID Color
 	}
 
 
@@ -229,7 +306,7 @@ int main() {
 
 
 	// Get the longest length of usernames
-	int longestUsername = 0;
+	unsigned int longestUsername = 0;
 	for (string username : usergroup.users) {
 		if (longestUsername < username.length()) {
 			longestUsername = username.length();
@@ -237,7 +314,7 @@ int main() {
 	}
 
 	// Get the longest length of groups
-	int longestGroupname = 0;
+	unsigned int longestGroupname = 0;
 	for (string groupname : usergroup.groups) {
 		if (longestGroupname < groupname.length()) {
 			longestGroupname = groupname.length();
@@ -256,12 +333,12 @@ int main() {
 	}
 	else {
 		groupnameCashe = vector<string>(longestGroupname,"| ");
-		for (int i = 0; i < longestGroupname; i++) {
+		for (unsigned int i = 0; i < longestGroupname; i++) {
 			// wmove(grouplist, i, 0);
 			// waddstr(grouplist, "| ");
 
-			for (int j = 0; j < usergroup.groups.size(); j++) {
-				int offset = longestGroupname - usergroup.groups[j].size();
+			for (unsigned int j = 0; j < usergroup.groups.size(); j++) {
+				unsigned int offset = longestGroupname - usergroup.groups[j].size();
 
 				if (offset <= i) {
 
@@ -292,11 +369,11 @@ int main() {
 
 	// Create the mapping buffers
 	vector<string> mappingCashe(usergroup.users.size(), "|");
-	for (int i = 0; i < usergroup.groups.size(); i++) {
-		for (int j = 0; j < usergroup.users.size(); j++) {
+	for (unsigned int i = 0; i < usergroup.groups.size(); i++) {
+		for (unsigned int j = 0; j < usergroup.users.size(); j++) {
 			if (!VERTICAL_GROUPS){
 				mappingCashe[j] += usergroup.mappings[j][i];
-				for (int k = 0; k < usergroup.groups[i].length(); k++){
+				for (unsigned int k = 0; k < usergroup.groups[i].length(); k++){
 					mappingCashe[j] += usergroup.mappings[j][i];
 				}
 				mappingCashe[j] += usergroup.mappings[j][i];
@@ -319,23 +396,16 @@ int main() {
 	refresh();
 
 
-	// Draw vector map of data
-	// wmove(mapping, 0, 0);
-	// for (int i = 0; i < 1000; i++){
-	// 	wattron(mapping, COLOR_PAIR(2));
-	// 	waddstr(mapping, "#");
-	// 	wattroff(mapping, COLOR_PAIR(2));
-	// }
-	// wrefresh(mapping);
-
+  //////////////////////////////////////////////////////////////////////////////
+ ///////////////////////////////// DRAW LOOP ////////////////////////////////// 
+//////////////////////////////////////////////////////////////////////////////  
 
 	while(true) {
 		// Draw usernames
-		// wclear(userlist);
 		for(int i = 0 ; i < nlines; i++) {
 			wmove(userlist, i, 0);
 
-			int index = i + yOffset;
+			unsigned int index = i + yOffset;
 
 			if (index < usergroup.users.size()) {
 
@@ -346,108 +416,46 @@ int main() {
 				// Padding to overwrite the ghosting letters from longer usernames
 				waddstr(userlist, string(longestUsername-usergroup.users[index].length(), ' ').c_str());
 
-			}
-
-
-			// rowSelected
-			
+			}			
 		}
 		wrefresh(userlist);
 
 		// Draw groupnames
-		// if (VERTICAL_GROUPS) {
-			for (int i = 0; i < groupnameCashe.size(); i++) {
-				wmove(grouplist, i , 0);
-				for (int j = xOffset; j < xOffset + ncols; j++) {
-					if (j < groupnameCashe[i].size()) {
-						char character = groupnameCashe[i][j];
+		for (unsigned int i = 0; i < groupnameCashe.size(); i++) {
+			wmove(grouplist, i , 0);
+			for (unsigned int j = xOffset; j < xOffset + ncols; j++) {
+				if (j < groupnameCashe[i].size()) {
+					char character = groupnameCashe[i][j];
 
-						if (character != '|') {
-							wattron(grouplist, COLOR_PAIR(1));
-							wattron(grouplist, A_BOLD);
-						}
+					if (character != '|') {
+						wattron(grouplist, COLOR_PAIR(1));
+						wattron(grouplist, A_BOLD);
+					}
 
-						if (character == '|' && UNICODE_ENABLED) {
-							waddstr(grouplist, "│");
-						}
-						else {
-							waddch(grouplist, character);
-						}
-
+					if (character == '|' && UNICODE_ENABLED) {
+						waddstr(grouplist, "│");
+					}
+					else {
+						waddch(grouplist, character);
+					}
 
 
-						if (character != '|') {
-							wattroff(grouplist, A_BOLD);
-							wattroff(grouplist, COLOR_PAIR(1));
-						}
+
+					if (character != '|') {
+						wattroff(grouplist, A_BOLD);
+						wattroff(grouplist, COLOR_PAIR(1));
 					}
 				}
 			}
-			/// INSERT VERTICAL GROUP PRINTING (POSSIBLY MERGE WIHT OTHER)
-		// }
-		// else {
-		// 	wmove (grouplist, 0 ,0);
-		// 	for (int i = xOffset; i < xOffset + ncols; i++) {
-		// 		waddch(grouplist, groupnameCashe[0][i]);
-		// 	}
-		// }
+		}
 		wrefresh(grouplist);
 
-		// Draw Mappings
-		// for (int i = 0; i < usergroup.mappings.size(); i ++) {
-		for(int i = 0 ; i < nlines; i++) {
-			wmove(userlist, i, 0);
+		drawMappingTable(mapping, mappingCashe, xOffset, yOffset, ncols, nlines, rowSelected, editMode);
 
-			int index = i + yOffset;
-
-			if (index < mappingCashe.size()) {
-
-
-				wmove(mapping, i ,0);
-
-
-				if (index == rowSelected) wattron(mapping,A_REVERSE);
-				for (int j = xOffset; j < xOffset + ncols; j++) {
-
-					if ( j < mappingCashe[index].length()) {
-						char character = mappingCashe[index][j];
-
-						if (character == '|' && UNICODE_ENABLED) {
-							waddstr(mapping, "│");
-						}
-						else if (character == '#' && UNICODE_ENABLED && COLOR_ENABLED){
-							wattron(mapping, COLOR_PAIR(2));
-							wattron(mapping, A_BOLD);
-							waddstr(mapping, "█");
-							wattroff(mapping, A_BOLD);
-							wattroff(mapping, COLOR_PAIR(2));
-						}
-						else if (character == 'X' && UNICODE_ENABLED && COLOR_ENABLED){
-							wattron(mapping, COLOR_PAIR(3));
-							wattron(mapping, A_BOLD);
-							waddstr(mapping, "█");
-							wattroff(mapping, A_BOLD);
-							wattroff(mapping, COLOR_PAIR(3));
-						}
-						else {
-							waddch(mapping, character);
-						}
-					}
-				}
-				if (index == rowSelected) wattroff(mapping,A_REVERSE);
-			}
-
-		}
-		wrefresh(mapping);
-
-
-		// printw("Hello world");
+		// Refresh the entire screen
 		refresh();
 
-		// string helloworld = "Hello World";
-		// printw( helloworld.c_str() );
-
-
+		// Handle Keypresses
 		int inputkey = getch();
 		move(0 , 0);
 		addstr(to_string(inputkey).c_str() );
@@ -459,50 +467,69 @@ int main() {
 				quit=true;
 				break;
 			case 261: // right arrow
-				xOffset += XSCROLLSPEED;
+				if (! editMode) {
+					xOffset += XSCROLLSPEED;
+				}
+				else {
+
+				}
 				break;
 			case 260: // left arrow
-				xOffset -= XSCROLLSPEED;
+				if (!editMode) { 
+					if (xOffset >= XSCROLLSPEED) {
+						xOffset -= XSCROLLSPEED;
+					}
+					else {
+						xOffset = 0;
+					}
+				}
+				else {
+
+				}
 				break;
 			case 258: // down arrow
 				rowSelected+= 1;
 				break;
 			case 259: // up arrow
-				rowSelected -= 1;
+				if (rowSelected > 0) {
+					rowSelected -= 1;
+				}
 				break;
-			case 108: // enter
+			case 10: // enter
+				// Toggle between edit and view modes
+				editMode = !editMode;
+				break;
+			case 9: // Tab
+				// Switch views
+				if (viewMode == GROUP_MODE) viewMode = USER_MODE;
+				else viewMode = GROUP_MODE;
+				// redrawstuff();
 				break;
 		}
 
 
 		// Check Bounds LR
 		if (xOffset + ncols > mappingCashe[0].size()) {
-			xOffset = mappingCashe[0].size() - ncols;
-		}
-		if (xOffset < 0) {
-			xOffset = 0;
+			int newPosition = mappingCashe[0].size() - ncols;
+			xOffset = max(0, newPosition);
 		}
 
 		// Check Bounds UD
-		if (rowSelected < 0) {
-			rowSelected = 0;
-		}
 		if (rowSelected > yOffset + nlines - 3) {
 			++yOffset;
 		}
 		if (yOffset + nlines > usergroup.users.size()) {
-			yOffset = usergroup.users.size()-nlines;
+			int newPosition = usergroup.users.size() - nlines;
+			yOffset = max(0, newPosition);
 		}
 		if (rowSelected >= usergroup.users.size()){
 			rowSelected = usergroup.users.size() -1;
 		}
 		if (rowSelected < yOffset + 2) {
-			--yOffset;
+			if (yOffset > 0 ) {
+				--yOffset;
+			}
 		}
-		if (yOffset < 0 ) {
-			yOffset = 0;
-		}
-
 
 		if (quit) {
 			break;
@@ -510,27 +537,21 @@ int main() {
 
 	}
 
-	// Pasre Groups
+	//  U - create new user
+	//  G - greate new group
+	//  P - set selected group as user's primary group (GROUP EDIT MODE)
+	//  RETURN - Enter Edit mode for the selected user
+	//  SPACE - toggle group on / off (GROUP EDIT MODE)
+	//  ESC - Return to view mode
+	// 	Tab - Switch between user/group view and user/settings view
+	//  q - Exit
+	//  S - Save
 	
 
-	// Parse users
-
-
-
-	//  ^U - create new user
-	//  ^G - greate new group
-	//  ^P - set selected group as user's primary group
-	//  SPACE - toggle group on / off
-	// 	^C - Exit
-	//  ^O - Save
-	
-
+	// Clean Up
 	delwin(mapping);
 	delwin(grouplist);
 	delwin(userlist);
-
-
-
 	endwin();
 
 	return 0;
