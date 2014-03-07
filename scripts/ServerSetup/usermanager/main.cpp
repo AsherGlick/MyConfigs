@@ -20,7 +20,7 @@ using namespace std;
 // Default value for enabling / disabling unicode output
 bool UNICODE_ENABLED = true;
 bool COLOR_ENABLED = true;
-bool VERTICAL_GROUPS = true;
+bool VERTICAL_GROUPS = false;
 unsigned int XSCROLLSPEED = 3;
 
 
@@ -33,12 +33,6 @@ struct UserGroup {
 	vector<string> groups;
 	vector< vector< string > > mappings;
 };
-
-struct boundingColumns {
-	unsigned int min;
-	unsigned int max;
-};
-
 
 
 vector<string> explode(string line, string delimiter) {
@@ -205,14 +199,20 @@ void redrawWindows(WINDOW * mapping, WINDOW * groupnames, WINDOW * usernames, WI
 }
 
 
-
-void drawMappingTable(WINDOW * mapping, const vector<string> & mappingCashe, const unsigned int & xOffset, const unsigned int & yOffset, const unsigned int & ncols, const unsigned int & nlines, const unsigned int & rowSelected, const bool & editMode) {
-	unsigned int columnSelectedMin = 7;
-	unsigned int columnSelectedMax = 12;
-
+// This fucntion draws the entire table of mappings given upper and lower bounds of the grid to display
+void drawMappingTable(
+	WINDOW * mapping,
+	const vector<string> & mappingCashe,
+	const unsigned int & xOffset,
+	const unsigned int & yOffset,
+	const unsigned int & ncols,
+	const unsigned int & nlines,
+	const unsigned int & rowSelected,
+	const unsigned int & columnSelectedMin,
+	const unsigned int & columnSelectedMax
+) {
 	// Draw Mappings
 	for(int i = 0 ; i < nlines; i++) {
-		// wmove(userlist, i, 0);
 
 		unsigned int index = i + yOffset;
 
@@ -220,9 +220,9 @@ void drawMappingTable(WINDOW * mapping, const vector<string> & mappingCashe, con
 			wmove(mapping, i ,0);
 
 
-			if (index == rowSelected && !editMode) wattron(mapping,A_REVERSE);
+			if (index == rowSelected) wattron(mapping,A_REVERSE);
 			for (unsigned int j = xOffset; j < xOffset + ncols; j++) {
-				if (index == rowSelected && j > columnSelectedMin && j < columnSelectedMax && editMode) wattron(mapping,A_REVERSE);
+				if (index != rowSelected && j > columnSelectedMin && j < columnSelectedMax) wattron(mapping,A_REVERSE);
 				if ( j < mappingCashe[index].length()) {
 					char character = mappingCashe[index][j];
 
@@ -247,9 +247,9 @@ void drawMappingTable(WINDOW * mapping, const vector<string> & mappingCashe, con
 						waddch(mapping, character);
 					}
 				}
-				if (index == rowSelected && j > columnSelectedMin && j < columnSelectedMax && editMode) wattroff(mapping,A_REVERSE);
+				if (index != rowSelected && j > columnSelectedMin && j < columnSelectedMax) wattroff(mapping,A_REVERSE);
 			}
-			if (index == rowSelected && !editMode) wattroff(mapping,A_REVERSE);
+			if (index == rowSelected) wattroff(mapping,A_REVERSE);
 		}
 	}
 	wrefresh(mapping);
@@ -272,10 +272,8 @@ int main() {
 	unsigned int xOffset = 0;
 	unsigned int yOffset = 0;
 
-	unsigned int columnSelectedMin = 7;
-	unsigned int columnSelectedMax = 12;
-
 	unsigned int rowSelected = 0;
+	unsigned int columnSelected = 0;
 
 	setlocale(LC_ALL, "");
 
@@ -326,12 +324,19 @@ int main() {
 	}
 
 
+	// Used to determine which screen columns should be hilighted starting with the leftmost bound of 0
+	vector<unsigned int> columnBounds = {0};
+	// Used to cashe the display for the group names
 	vector<string> groupnameCashe;
 
 	if (!VERTICAL_GROUPS) {
+
 		groupnameCashe = vector<string>(1,"| ");
 		for (string groupname : usergroup.groups) {
 			groupnameCashe[0] += groupname + " | ";
+
+			// add the new bound to the list, -2 because there are 2 extra characters "| " after the end of the label
+			columnBounds.push_back(groupnameCashe[0].length()-2);
 		}
 		longestGroupname = 1;
 	}
@@ -366,6 +371,9 @@ int main() {
 				// if (UNICODE_ENABLED) waddstr(grouplist, " │ ");
 				// else waddstr(grouplist, " | ");
 				groupnameCashe[i] += " | ";
+				if (i == 0) {
+					columnBounds.push_back(groupnameCashe[0].length()-2);
+				}
 			}
 		}
 	}
@@ -454,7 +462,7 @@ int main() {
 		}
 		wrefresh(grouplist);
 
-		drawMappingTable(mapping, mappingCashe, xOffset, yOffset, ncols, nlines, rowSelected, editMode);
+		drawMappingTable(mapping, mappingCashe, xOffset, yOffset, ncols, nlines, rowSelected, columnBounds[columnSelected], columnBounds[columnSelected+1]);
 
 		// Refresh the entire screen
 		refresh();
@@ -462,7 +470,8 @@ int main() {
 		// Handle Keypresses
 		int inputkey = getch();
 		move(0 , 0);
-		addstr(to_string(inputkey).c_str() );
+		// addstr(to_string(inputkey).c_str() );
+		addstr(to_string(columnBounds.size()).c_str());
 		refresh();
 
 		bool quit = false;
@@ -471,25 +480,16 @@ int main() {
 				quit=true;
 				break;
 			case 261: // right arrow
-				if (! editMode) {
-					xOffset += XSCROLLSPEED;
+				if (columnSelected < columnBounds.size() - 2 ) {
+					columnSelected += 1;
 				}
-				else {
 
-				}
 				break;
 			case 260: // left arrow
-				if (!editMode) { 
-					if (xOffset >= XSCROLLSPEED) {
-						xOffset -= XSCROLLSPEED;
-					}
-					else {
-						xOffset = 0;
-					}
+				if (columnSelected > 0) {
+					columnSelected -= 1;
 				}
-				else {
 
-				}
 				break;
 			case 258: // down arrow
 				rowSelected+= 1;
@@ -513,8 +513,17 @@ int main() {
 
 
 		// Check Bounds LR
-		if (xOffset + ncols > mappingCashe[0].size()) {
-			int newPosition = mappingCashe[0].size() - ncols;
+		unsigned int maxIndex = columnBounds.size()-1;
+		unsigned int upperIndex = min(maxIndex,columnSelected+3);
+		if (columnBounds[upperIndex] > xOffset + ncols - 3) {
+
+			xOffset = columnBounds[upperIndex]-ncols+1;
+		}
+
+		unsigned int lowerIndex = columnSelected;
+		if (lowerIndex >= 2) lowerIndex -= 2;
+		if (xOffset > columnBounds[lowerIndex]) {
+			int newPosition =columnBounds[lowerIndex];
 			xOffset = max(0, newPosition);
 		}
 
