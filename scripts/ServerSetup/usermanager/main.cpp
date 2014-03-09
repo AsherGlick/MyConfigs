@@ -9,9 +9,9 @@
 #include <algorithm>
 // #include <ifstream>
 #include <fstream>
-
-
 #include <iostream>
+#include <cstdarg>
+
 
 
 
@@ -254,6 +254,25 @@ void drawMappingTable(
 	}
 	wrefresh(mapping);
 }
+
+template<typename... Arguments>
+int executeFunction(Arguments... args) {
+	// Grab all the arguments as strings
+	// int size = sizeof...(Arguments);
+	vector<string> arguments = { (args)... };
+
+	// Assemble the command on a single line
+	string command;
+	for (string d : arguments) {
+		command += d + ' ';
+	}
+
+	// Run the command
+	cerr << "Running:" << command << endl;
+
+    return 0;
+}
+
 
 /************************************ MAIN ************************************\
 | This function is in charge of handling the main window for ncurses. It       |
@@ -501,7 +520,15 @@ int main() {
 				break;
 			case 10: // enter
 				// Toggle between edit and view modes
-				editMode = !editMode;
+
+				break;
+			case 32: // Space (toggle settings)
+				if (usergroup.mappings[rowSelected][columnSelected] == " ")
+					executeFunction("/usr/sbin/adduser", usergroup.users[rowSelected], usergroup.groups[columnSelected]);
+				else if (usergroup.mappings[rowSelected][columnSelected] == "X")
+					executeFunction("/usr/sbin/deluser", usergroup.users[rowSelected], usergroup.groups[columnSelected]);
+				else
+					cerr << "You cant change the primary group of " << usergroup.users[rowSelected] << " yet" << endl;
 				break;
 			case 9: // Tab
 				// Switch views
