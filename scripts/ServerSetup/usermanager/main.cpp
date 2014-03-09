@@ -540,9 +540,10 @@ int main() {
 		// Check Bounds LR
 		unsigned int maxIndex = columnBounds.size()-1;
 		unsigned int upperIndex = min(maxIndex,columnSelected+3);
-		if (columnBounds[upperIndex] > xOffset + ncols - 3) {
+		if (columnBounds[upperIndex] > xOffset + ncols) {
 
 			xOffset = columnBounds[upperIndex]-ncols+1;
+			;
 		}
 
 		unsigned int lowerIndex = columnSelected;
