@@ -228,17 +228,19 @@ void drawMappingTable(
 					if (character == '|' && UNICODE_ENABLED) {
 						waddstr(mapping, "│");
 					}
-					else if (character == '#' && UNICODE_ENABLED && COLOR_ENABLED){
+					else if (character == '#' && COLOR_ENABLED){
 						wattron(mapping, COLOR_PAIR(2));
 						wattron(mapping, A_BOLD);
-						waddstr(mapping, "█");
+						if (UNICODE_ENABLED) waddstr(mapping, "▌");
+						else waddch(mapping, character);
 						wattroff(mapping, A_BOLD);
 						wattroff(mapping, COLOR_PAIR(2));
 					}
-					else if (character == 'X' && UNICODE_ENABLED && COLOR_ENABLED){
+					else if (character == 'X' && COLOR_ENABLED){
 						wattron(mapping, COLOR_PAIR(3));
 						wattron(mapping, A_BOLD);
-						waddstr(mapping, "█");
+						if (UNICODE_ENABLED) waddstr(mapping, "▌");
+						else waddch(mapping, character);
 						wattroff(mapping, A_BOLD);
 						wattroff(mapping, COLOR_PAIR(3));
 					}
