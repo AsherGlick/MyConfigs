@@ -21,7 +21,6 @@ using namespace std;
 bool UNICODE_ENABLED = true;
 bool COLOR_ENABLED = true;
 bool VERTICAL_GROUPS = false;
-unsigned int XSCROLLSPEED = 3;
 
 
 enum Mode { GROUP_MODE, USER_MODE };
@@ -194,9 +193,9 @@ UserGroup parseUsers() {
 	return output;
 }
 
-void redrawWindows(WINDOW * mapping, WINDOW * groupnames, WINDOW * usernames, WINDOW * userdata, WINDOW * menubar) {
+// void redrawWindows(WINDOW * mapping, WINDOW * groupnames, WINDOW * usernames, WINDOW * userdata, WINDOW * menubar) {
 
-}
+// }
 
 
 // This fucntion draws the entire table of mappings given upper and lower bounds of the grid to display
@@ -212,7 +211,7 @@ void drawMappingTable(
 	const unsigned int & columnSelectedMax
 ) {
 	// Draw Mappings
-	for(int i = 0 ; i < nlines; i++) {
+	for(unsigned int i = 0 ; i < nlines; i++) {
 
 		unsigned int index = i + yOffset;
 
@@ -285,7 +284,6 @@ int main() {
 
 // int dub() {
 	Mode viewMode = GROUP_MODE;
-	bool editMode = false;
 
 	// X and Y offsets for viewing data
 	unsigned int xOffset = 0;
