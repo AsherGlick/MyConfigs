@@ -256,6 +256,46 @@ void drawMappingTable(
 	wrefresh(mapping);
 }
 
+void drawCommandList (WINDOW * commandList, unsigned int screenWidth) {
+	wmove(commandList, 1, (screenWidth * 0) / 5 + 2);
+	waddstr(commandList, " Exit");
+	wmove(commandList, 1, (screenWidth * 1) / 5 + 2);
+	waddstr(commandList, " New");
+	wmove(commandList, 1, (screenWidth * 2) / 5 + 2);
+	waddstr(commandList, " Delete");
+	wmove(commandList, 1, (screenWidth * 3) / 5 + 2);
+	waddstr(commandList, " Toggle ");
+		wattron(commandList,COLOR_PAIR(3));
+		wattron(commandList, A_BOLD);
+			waddstr(commandList, "Secondary");
+		wattroff(commandList, A_BOLD);
+		wattroff(commandList,COLOR_PAIR(3));
+	wmove(commandList, 1, (screenWidth * 4) / 5 + 2);
+	waddstr(commandList, " Set ");
+		wattron(commandList,COLOR_PAIR(2));
+		wattron(commandList, A_BOLD);
+			waddstr(commandList, "Primary");
+		wattroff(commandList, A_BOLD);
+		wattroff(commandList,COLOR_PAIR(2));
+
+
+	wattron(commandList, A_REVERSE);
+	wmove(commandList, 1, (screenWidth * 0) / 5);
+	waddstr(commandList, "^C");
+	wmove(commandList, 1, (screenWidth * 1) / 5);
+	waddstr(commandList, "^N");
+	wmove(commandList, 1, (screenWidth * 2) / 5);
+	waddstr(commandList, "^D");
+	wmove(commandList, 1, (screenWidth * 3) / 5);
+	waddstr(commandList, "  ");
+	wmove(commandList, 1, (screenWidth * 4) / 5);
+	waddstr(commandList, "^P");
+	wattroff(commandList, A_REVERSE);
+
+
+	wrefresh(commandList);
+}
+
 template<typename... Arguments>
 int executeFunction(Arguments... args) {
 	// Grab all the arguments as strings
@@ -418,12 +458,13 @@ int main() {
 		}
 	}
 
-	int nlines = h - longestGroupname -1;
+	int nlines = h - longestGroupname -2;
 	int ncols = w - longestUsername - 2;
 
 	WINDOW * mapping = newwin(nlines, ncols, longestGroupname, longestUsername);
 	WINDOW * userlist = newwin(nlines, longestUsername, longestGroupname , 0);
 	WINDOW * grouplist = newwin(longestGroupname, ncols, 0, longestUsername);
+	WINDOW * commandList = newwin(2, w, h-2,0);
 	refresh();
 
 
@@ -482,6 +523,8 @@ int main() {
 		wrefresh(grouplist);
 
 		drawMappingTable(mapping, mappingCashe, xOffset, yOffset, ncols, nlines, rowSelected, columnBounds[columnSelected], columnBounds[columnSelected+1]);
+
+		drawCommandList(commandList,w);
 
 		// Refresh the entire screen
 		refresh();
