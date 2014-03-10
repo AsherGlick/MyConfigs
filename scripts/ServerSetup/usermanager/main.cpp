@@ -535,6 +535,7 @@ int main() {
 		refresh();
 
 		// Handle Keypresses
+		int inputkey = getch();
 		bool quit = false;
 		switch(inputkey) {
 			case 113:  // q
