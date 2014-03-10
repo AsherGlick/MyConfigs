@@ -384,22 +384,24 @@ int main() {
 
 	if (!VERTICAL_GROUPS) {
 
-		groupnameCashe = vector<string>(1,"| ");
+		groupnameCashe = vector<string>(2,"| ");
+		groupnameCashe[1]="|-";
 		for (string groupname : usergroup.groups) {
 			groupnameCashe[0] += groupname + " | ";
-
+			groupnameCashe[1] += string(groupname.length(),'-') + "-|-";
 			// add the new bound to the list, -2 because there are 2 extra characters "| " after the end of the label
 			columnBounds.push_back(groupnameCashe[0].length()-2);
 		}
-		longestGroupname = 1;
+		longestGroupname = 2;
 	}
 	else {
-		groupnameCashe = vector<string>(longestGroupname,"| ");
-		for (unsigned int i = 0; i < longestGroupname; i++) {
+		groupnameCashe = vector<string>(longestGroupname+1,"| ");
+		groupnameCashe[groupnameCashe.size()-1] = "|-";
+		for (unsigned int j = 0; j < usergroup.groups.size(); j++) {
+			for (unsigned int i = 0; i < longestGroupname; i++) {
 			// wmove(grouplist, i, 0);
 			// waddstr(grouplist, "| ");
 
-			for (unsigned int j = 0; j < usergroup.groups.size(); j++) {
 				unsigned int offset = longestGroupname - usergroup.groups[j].size();
 
 				if (offset <= i) {
@@ -428,7 +430,9 @@ int main() {
 					columnBounds.push_back(groupnameCashe[0].length()-2);
 				}
 			}
+			groupnameCashe[groupnameCashe.size()-1] += "--|-";
 		}
+		longestGroupname++;
 	}
 
 
@@ -493,13 +497,25 @@ int main() {
 				if (j < groupnameCashe[i].size()) {
 					char character = groupnameCashe[i][j];
 
-					if (character != '|') {
+					if (character != '|' && i < groupnameCashe.size()-1) {
 						wattron(grouplist, COLOR_PAIR(1));
 						wattron(grouplist, A_BOLD);
 					}
 
 					if (character == '|' && UNICODE_ENABLED) {
-						waddstr(grouplist, "│");
+						if (i == groupnameCashe.size()-1) {
+							if (j == 0)
+								waddstr(grouplist, "├");
+							else if (j == groupnameCashe[i].size()-2)
+								waddstr(grouplist, "┤");
+							else
+								waddstr(grouplist, "┼");
+						} else {
+							waddstr(grouplist, "│");
+						}
+					}
+					else if (character == '-' && UNICODE_ENABLED) {
+						waddstr(grouplist, "─");
 					}
 					else {
 						waddch(grouplist, character);
