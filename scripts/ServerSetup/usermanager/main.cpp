@@ -56,12 +56,6 @@ vector<string> explode(string line, string delimiter) {
 	return output;
 }
 
-// Centeres a given string for a specified size
-// Returns a left and right space padded string
-string centerString(string input, int size) {
-	return input;
-}
-
 
 UserGroup parseUsers() {
 
