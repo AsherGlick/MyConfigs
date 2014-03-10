@@ -33,7 +33,11 @@ struct UserGroup {
 	vector< vector< string > > mappings;
 };
 
-
+/*********************************** EXPLODE **********************************\
+| This is a simple explode or split implementation that splits up a string     |
+| based on a delimiter and returns a vector of strings that exist between the  |
+| delimters                                                                    |
+\******************************************************************************/
 vector<string> explode(string line, string delimiter) {
 
 	if (line.length() < delimiter.length()) {
@@ -56,7 +60,12 @@ vector<string> explode(string line, string delimiter) {
 	return output;
 }
 
-
+/********************************* PARSE USERS ********************************\
+| This function reads /etc/passwd and /etc/group to get a list of users, a     |
+| list of groups, and a matrix mapping the two. The matrix contains data on    |
+| whether the user/group pair is a singleton primary group or a secondary      |
+| group                                                                        |
+\******************************************************************************/
 UserGroup parseUsers() {
 
 	std::ifstream etcGroups("/etc/group");
@@ -192,7 +201,12 @@ UserGroup parseUsers() {
 // }
 
 
-// This fucntion draws the entire table of mappings given upper and lower bounds of the grid to display
+/***************************** DRAW MAPPING TABLE *****************************\
+| This function takes in the mapping matrx and draws it to the window          |
+| provided. It handles setting colors and converting ascii characters into     |
+| unicode if enabled. It also handles sizing and scrolling by giving it a      |
+| different offset the image will be displayed starting at a different point   |
+\******************************************************************************/
 void drawMappingTable(
 	WINDOW * mapping,
 	const vector<string> & mappingCashe,
@@ -250,6 +264,11 @@ void drawMappingTable(
 	wrefresh(mapping);
 }
 
+
+/****************************** DRAW COMMAND LIST *****************************\
+| The draw command list function draws the list of commands with the correct   |
+| spacing and coloring to the specified window passed into the function.       |
+\******************************************************************************/
 void drawCommandList (WINDOW * commandList, unsigned int screenWidth) {
 	wmove(commandList, 1, (screenWidth * 0) / 5 + 2);
 	waddstr(commandList, " Exit");
@@ -290,6 +309,14 @@ void drawCommandList (WINDOW * commandList, unsigned int screenWidth) {
 	wrefresh(commandList);
 }
 
+/****************************** EXECUTE FUNCTION ******************************\
+| This is a variatic function that runs a command. The first argument is the   |
+| command to run, the following arguments are the arguments to pass to that    |
+| command. As of the time of writing this title this command simply runs the   |
+| system() function. Once a better design of which external functions should   |
+| be used is complete then this should probably be replaced with a fork exec   |
+| style call.                                                                  |
+\******************************************************************************/
 template<typename... Arguments>
 int executeFunction(Arguments... args) {
 	// Grab all the arguments as strings
