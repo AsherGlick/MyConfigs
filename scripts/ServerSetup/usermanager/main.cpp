@@ -532,7 +532,8 @@ int main() {
 
 		bool quit = false;
 		switch(inputkey) {
-			case 113:  // Q
+			case 113:  // q
+			case 81: // Q
 				quit=true;
 				break;
 			case 261: // right arrow
