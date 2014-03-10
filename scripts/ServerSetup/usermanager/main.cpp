@@ -568,6 +568,14 @@ int main() {
 				else
 					cerr << "You cant change the primary group of " << usergroup.users[rowSelected] << " yet" << endl;
 				break;
+
+			case 4: // ^D
+				//
+				break;
+			case 14: // ^N
+				break;
+			case 16: // ^P
+				break;
 			case 9: // Tab
 				// Switch views
 				if (viewMode == GROUP_MODE) viewMode = USER_MODE;
