@@ -226,7 +226,6 @@ void drawMappingTable(
 		if (index < mappingCashe.size()) {
 			wmove(mapping, i ,0);
 
-
 			if (index == rowSelected) wattron(mapping,A_REVERSE);
 			for (unsigned int j = xOffset; j < xOffset + ncols; j++) {
 				if (index != rowSelected && j > columnSelectedMin && j < columnSelectedMax) wattron(mapping,A_REVERSE);
@@ -357,8 +356,6 @@ int main() {
 
 	setlocale(LC_ALL, "");
 
-
-
 	// Initilize Screen
 	initscr(); 
 
@@ -368,11 +365,9 @@ int main() {
 	keypad(stdscr, TRUE);
 	curs_set(0);
 
-
 	// Get the height and width of the screen
 	int h, w;
 	getmaxyx(stdscr, h, w);
-
 
 	if (COLOR_ENABLED) {
 		start_color();
@@ -382,10 +377,8 @@ int main() {
 		init_pair(3, COLOR_GREEN, -1); // Seconday Group ID Color
 	}
 
-
 	// Parse the usergroup file
 	UserGroup usergroup = parseUsers();
-
 
 	// Get the longest length of usernames
 	unsigned int longestUsername = 0;
@@ -402,7 +395,6 @@ int main() {
 			longestGroupname = groupname.length();
 		}
 	}
-
 
 	// Used to determine which screen columns should be hilighted starting with the leftmost bound of 0
 	vector<unsigned int> columnBounds = {0};
@@ -426,32 +418,14 @@ int main() {
 		groupnameCashe[groupnameCashe.size()-1] = "|-";
 		for (unsigned int j = 0; j < usergroup.groups.size(); j++) {
 			for (unsigned int i = 0; i < longestGroupname; i++) {
-			// wmove(grouplist, i, 0);
-			// waddstr(grouplist, "| ");
-
 				unsigned int offset = longestGroupname - usergroup.groups[j].size();
-
 				if (offset <= i) {
-
-					// char character = 
-					// waddstr(grouplist, "\033[1m")
-
-
-
-					// waddch(grouplist,usergroup.groups[j][i-offset]);
 					groupnameCashe[i] += usergroup.groups[j][i-offset];
-
-
-					// waddstr(grouplist, "\033[0m");
 				}
 				else {
-
 					groupnameCashe[i] += " ";
 				}
 
-
-				// if (UNICODE_ENABLED) waddstr(grouplist, " │ ");
-				// else waddstr(grouplist, " | ");
 				groupnameCashe[i] += " | ";
 				if (i == 0) {
 					columnBounds.push_back(groupnameCashe[0].length()-2);
@@ -461,7 +435,6 @@ int main() {
 		}
 		longestGroupname++;
 	}
-
 
 	// Create the mapping buffers
 	vector<string> mappingCashe(usergroup.users.size(), "|");
@@ -491,7 +464,6 @@ int main() {
 	WINDOW * grouplist = newwin(longestGroupname, ncols, 0, longestUsername);
 	WINDOW * commandList = newwin(2, w, h-2,0);
 	refresh();
-
 
   //////////////////////////////////////////////////////////////////////////////
  ///////////////////////////////// DRAW LOOP ////////////////////////////////// 
@@ -548,8 +520,6 @@ int main() {
 						waddch(grouplist, character);
 					}
 
-
-
 					if (character != '|') {
 						wattroff(grouplist, A_BOLD);
 						wattroff(grouplist, COLOR_PAIR(1));
@@ -560,19 +530,11 @@ int main() {
 		wrefresh(grouplist);
 
 		drawMappingTable(mapping, mappingCashe, xOffset, yOffset, ncols, nlines, rowSelected, columnBounds[columnSelected], columnBounds[columnSelected+1]);
-
 		drawCommandList(commandList,w);
-
 		// Refresh the entire screen
 		refresh();
 
 		// Handle Keypresses
-		int inputkey = getch();
-		move(0 , 0);
-		// addstr(to_string(inputkey).c_str() );
-		addstr(to_string(columnBounds.size()).c_str());
-		refresh();
-
 		bool quit = false;
 		switch(inputkey) {
 			case 113:  // q
@@ -627,14 +589,11 @@ int main() {
 				break;
 		}
 
-
 		// Check Bounds LR
 		unsigned int maxIndex = columnBounds.size()-1;
 		unsigned int upperIndex = min(maxIndex,columnSelected+3);
 		if (columnBounds[upperIndex] > xOffset + ncols) {
-
 			xOffset = columnBounds[upperIndex]-ncols+1;
-			;
 		}
 
 		unsigned int lowerIndex = columnSelected;
@@ -661,22 +620,12 @@ int main() {
 			}
 		}
 
+		// Check Exit
 		if (quit) {
 			break;
 		}
 
 	}
-
-	//  U - create new user
-	//  G - greate new group
-	//  P - set selected group as user's primary group (GROUP EDIT MODE)
-	//  RETURN - Enter Edit mode for the selected user
-	//  SPACE - toggle group on / off (GROUP EDIT MODE)
-	//  ESC - Return to view mode
-	// 	Tab - Switch between user/group view and user/settings view
-	//  q - Exit
-	//  S - Save
-	
 
 	// Clean Up
 	delwin(mapping);
@@ -686,27 +635,3 @@ int main() {
 
 	return 0;
 }
-
-
-
-// // hash example
-// #include <iostream>
-// #include <functional>
-// #include <string>
-
-// int main ()
-// {
-//   char nts1[] = "Test";
-//   char nts2[] = "Test";
-//   std::string str1 (nts1);
-//   std::string str2 (nts2);
-
-//   std::hash<char*> ptr_hash;
-//   std::hash<std::string> str_hash;
-
-//   std::cout << "same hashes:\n" << std::boolalpha;
-//   std::cout << "nts1 and nts2: " << (ptr_hash(nts1)==ptr_hash(nts2)) << '\n';
-//   std::cout << "str1 and str2: " << (str_hash(str1)==str_hash(str2)) << '\n';
-
-//   return 0;
-// }
