@@ -631,11 +631,14 @@ int main() {
 				break;
 			case 32: // Space (toggle settings)
 				if (usergroup.mappings[rowSelected][columnSelected] == " ")
-					executeFunction("/usr/sbin/adduser", usergroup.users[rowSelected], usergroup.groups[columnSelected]);
+					usergroup.mappings[rowSelected][columnSelected] = "X";
+				// 	executeFunction("/usr/sbin/adduser", usergroup.users[rowSelected], usergroup.groups[columnSelected]);
 				else if (usergroup.mappings[rowSelected][columnSelected] == "X")
-					executeFunction("/usr/sbin/deluser", usergroup.users[rowSelected], usergroup.groups[columnSelected]);
-				else
-					cerr << "You cant change the primary group of " << usergroup.users[rowSelected] << " yet" << endl;
+					usergroup.mappings[rowSelected][columnSelected] = " ";
+				// 	executeFunction("/usr/sbin/deluser", usergroup.users[rowSelected], usergroup.groups[columnSelected]);
+				// else
+				// 	cerr << "You cant change the primary group of " << usergroup.users[rowSelected] << " yet" << endl;
+				mappingCashe = createMappingCashe(usergroup);
 				break;
 
 			case 18: // ^R Rotate Group names
