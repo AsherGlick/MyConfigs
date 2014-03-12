@@ -639,7 +639,12 @@ int main() {
 				break;
 
 			case 18: // ^R Rotate Group names
-				break;
+				VERTICAL_GROUPS = !VERTICAL_GROUPS;
+				groupCashe = createGroupCashe(usergroup, VERTICAL_GROUPS);
+				longestGroupname = groupCashe.longestValue; // Get the longest length of groups
+				columnBounds = groupCashe.columnBounds; // Used to determine which screen columns should be hilighted starting with the leftmost bound of 0
+				groupnameCashe = groupCashe.groupnameCashe; // Used to cashe the display for the group names
+				mappingCashe = createMappingCashe(usergroup);
 			case KEY_RESIZE:
 				redrawWindows(mapping, grouplist, userlist, commandList, w, h, ncols, nlines, longestGroupname, longestUsername);
 				break;
