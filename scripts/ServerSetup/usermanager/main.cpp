@@ -28,6 +28,12 @@ struct UserGroup {
 	vector< vector< string > > mappings;
 };
 
+struct GroupCashe {
+	vector<string> groupnameCashe;
+	vector<unsigned int> columnBounds;
+	unsigned int longestValue;
+};
+
 /*********************************** EXPLODE **********************************\
 | This is a simple explode or split implementation that splits up a string     |
 | based on a delimiter and returns a vector of strings that exist between the  |
@@ -457,6 +463,59 @@ vector<string> createMappingCashe(const UserGroup & usergroup) {
 	return mappingCashe;
 }
 
+GroupCashe createGroupCashe(const UserGroup & usergroup, bool verticalGroups) {
+	GroupCashe groupCashe;
+
+	// Get the longest length of groups
+	groupCashe.longestValue = 0;
+	for (string groupname : usergroup.groups) {
+		if (groupCashe.longestValue < groupname.length()) {
+			groupCashe.longestValue = groupname.length();
+		}
+	}
+
+	// Used to determine which screen columns should be hilighted starting with the leftmost bound of 0
+	groupCashe.columnBounds = {0};
+
+
+	if (!verticalGroups) {
+
+		groupCashe.groupnameCashe = vector<string>(2,"| ");
+		groupCashe.groupnameCashe[1]="|-";
+		for (string groupname : usergroup.groups) {
+			groupCashe.groupnameCashe[0] += groupname + " | ";
+			groupCashe.groupnameCashe[1] += string(groupname.length(),'-') + "-|-";
+			// add the new bound to the list, -2 because there are 2 extra characters "| " after the end of the label
+			groupCashe.columnBounds.push_back(groupCashe.groupnameCashe[0].length()-2);
+		}
+		groupCashe.longestValue = 2;
+	}
+	else {
+		groupCashe.groupnameCashe = vector<string>(groupCashe.longestValue+1,"| ");
+		groupCashe.groupnameCashe[groupCashe.groupnameCashe.size()-1] = "|-";
+		for (unsigned int j = 0; j < usergroup.groups.size(); j++) {
+			for (unsigned int i = 0; i < groupCashe.longestValue; i++) {
+				unsigned int offset = groupCashe.longestValue - usergroup.groups[j].size();
+				if (offset <= i) {
+					groupCashe.groupnameCashe[i] += usergroup.groups[j][i-offset];
+				}
+				else {
+					groupCashe.groupnameCashe[i] += " ";
+				}
+
+				groupCashe.groupnameCashe[i] += " | ";
+				if (i == 0) {
+					groupCashe.columnBounds.push_back(groupCashe.groupnameCashe[0].length()-2);
+				}
+			}
+			groupCashe.groupnameCashe[groupCashe.groupnameCashe.size()-1] += "--|-";
+		}
+		groupCashe.longestValue++;
+	}
+
+	return groupCashe;
+}
+
 /************************************ MAIN ************************************\
 | This function is in charge of handling the main window for ncurses. It       |
 | delegates window size and reacts to user input                               |
@@ -508,53 +567,13 @@ int main() {
 		}
 	}
 
-	// Get the longest length of groups
-	unsigned int longestGroupname = 0;
-	for (string groupname : usergroup.groups) {
-		if (longestGroupname < groupname.length()) {
-			longestGroupname = groupname.length();
-		}
-	}
 
-	// Used to determine which screen columns should be hilighted starting with the leftmost bound of 0
-	vector<unsigned int> columnBounds = {0};
-	// Used to cashe the display for the group names
-	vector<string> groupnameCashe;
 
-	if (!VERTICAL_GROUPS) {
-
-		groupnameCashe = vector<string>(2,"| ");
-		groupnameCashe[1]="|-";
-		for (string groupname : usergroup.groups) {
-			groupnameCashe[0] += groupname + " | ";
-			groupnameCashe[1] += string(groupname.length(),'-') + "-|-";
-			// add the new bound to the list, -2 because there are 2 extra characters "| " after the end of the label
-			columnBounds.push_back(groupnameCashe[0].length()-2);
-		}
-		longestGroupname = 2;
-	}
-	else {
-		groupnameCashe = vector<string>(longestGroupname+1,"| ");
-		groupnameCashe[groupnameCashe.size()-1] = "|-";
-		for (unsigned int j = 0; j < usergroup.groups.size(); j++) {
-			for (unsigned int i = 0; i < longestGroupname; i++) {
-				unsigned int offset = longestGroupname - usergroup.groups[j].size();
-				if (offset <= i) {
-					groupnameCashe[i] += usergroup.groups[j][i-offset];
-				}
-				else {
-					groupnameCashe[i] += " ";
-				}
-
-				groupnameCashe[i] += " | ";
-				if (i == 0) {
-					columnBounds.push_back(groupnameCashe[0].length()-2);
-				}
-			}
-			groupnameCashe[groupnameCashe.size()-1] += "--|-";
-		}
-		longestGroupname++;
-	}
+	// Get the group name buffers
+	GroupCashe groupCashe = createGroupCashe(usergroup, VERTICAL_GROUPS);
+	unsigned int longestGroupname = groupCashe.longestValue; // Get the longest length of groups
+	vector<unsigned int> columnBounds = groupCashe.columnBounds; // Used to determine which screen columns should be hilighted starting with the leftmost bound of 0
+	vector<string> groupnameCashe = groupCashe.groupnameCashe; // Used to cashe the display for the group names
 
 	// Create the mapping buffers
 	vector<string> mappingCashe = createMappingCashe(usergroup);
