@@ -196,9 +196,38 @@ UserGroup parseUsers() {
 	return output;
 }
 
-// void redrawWindows(WINDOW * mapping, WINDOW * groupnames, WINDOW * usernames, WINDOW * userdata, WINDOW * menubar) {
+void redrawWindows(
+	WINDOW * & mapping,
+	WINDOW * & groupList,
+	WINDOW * & userList,
+	WINDOW * & commandList,
+	unsigned int & screenWidth, // set
+	unsigned int & screenHeight, // set
+	unsigned int & matrixColumns, // set
+	unsigned int & matrixRows, // set
+	const unsigned int & longestGroupname,
+	const unsigned int & longestUsername
+) {
 
-// }
+	erase();
+
+	delwin(mapping);
+	delwin(groupList);
+	delwin(userList);
+	delwin(commandList);
+
+	erase();
+
+	getmaxyx(stdscr, screenHeight, screenWidth);
+	matrixRows = screenHeight - longestGroupname - 2;
+	matrixColumns = screenWidth - longestUsername - 2;
+	mapping = newwin(matrixRows, matrixColumns, longestGroupname, longestUsername);
+	userList = newwin(matrixRows, longestUsername, longestGroupname , 0);
+	groupList = newwin(longestGroupname, matrixColumns, 0, longestUsername);
+	commandList = newwin(2, screenWidth, screenHeight-2,0);
+	refresh();
+
+}
 
 
 /***************************** DRAW MAPPING TABLE *****************************\
@@ -441,7 +470,7 @@ int main() {
 	curs_set(0);
 
 	// Get the height and width of the screen
-	int h, w;
+	unsigned int h, w;
 	getmaxyx(stdscr, h, w);
 
 	if (COLOR_ENABLED) {
@@ -531,8 +560,8 @@ int main() {
 		}
 	}
 
-	int nlines = h - longestGroupname -2;
-	int ncols = w - longestUsername - 2;
+	unsigned int nlines = h - longestGroupname -2;
+	unsigned int ncols = w - longestUsername - 2;
 
 	WINDOW * mapping = newwin(nlines, ncols, longestGroupname, longestUsername);
 	WINDOW * userlist = newwin(nlines, longestUsername, longestGroupname , 0);
@@ -605,6 +634,9 @@ int main() {
 				if (viewMode == GROUP_MODE) viewMode = USER_MODE;
 				else viewMode = GROUP_MODE;
 				// redrawstuff();
+				break;
+			case KEY_RESIZE:
+				redrawWindows(mapping, grouplist, userlist, commandList, w, h, ncols, nlines, longestGroupname, longestUsername);
 				break;
 		}
 
