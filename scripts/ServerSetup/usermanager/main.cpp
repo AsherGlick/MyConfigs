@@ -371,7 +371,7 @@ void drawCommandList (WINDOW * commandList, unsigned int screenWidth) {
 	wmove(commandList, 1, (screenWidth * 0) / 5 + 2);
 	waddstr(commandList, " Exit");
 	wmove(commandList, 1, (screenWidth * 1) / 5 + 2);
-	waddstr(commandList, " Save");
+	waddstr(commandList, " Write");
 	wmove(commandList, 1, (screenWidth * 2) / 5 + 2);
 	waddstr(commandList, " Rotate Groups");
 	wmove(commandList, 1, (screenWidth * 3) / 5 + 2);
@@ -394,7 +394,7 @@ void drawCommandList (WINDOW * commandList, unsigned int screenWidth) {
 	wmove(commandList, 1, (screenWidth * 0) / 5);
 	waddstr(commandList, "^C");
 	wmove(commandList, 1, (screenWidth * 1) / 5);
-	waddstr(commandList, "^S");
+	waddstr(commandList, "^w");
 	wmove(commandList, 1, (screenWidth * 2) / 5);
 	waddstr(commandList, "^R");
 	wmove(commandList, 1, (screenWidth * 3) / 5);
@@ -578,6 +578,8 @@ int main() {
 		int inputkey = getch();
 		bool quit = false;
 		switch(inputkey) {
+			case 23: // ^W Write and exit
+				//write()
 			case 113:  // q
 			case 81: // Q
 				quit=true;
