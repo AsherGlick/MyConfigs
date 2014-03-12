@@ -640,7 +640,17 @@ int main() {
 				// 	cerr << "You cant change the primary group of " << usergroup.users[rowSelected] << " yet" << endl;
 				mappingCashe = createMappingCashe(usergroup);
 				break;
-
+			case 16: // ^P Set primary group
+				// Shift the old primary group to a secondary group
+				for (int i = 0; i < usergroup.groups.size(); i++) {
+					if (usergroup.mappings[rowSelected][i] == "#") {
+						usergroup.mappings[rowSelected][i] = "X";
+					}
+				}
+				// Set this selection to a primary group
+				usergroup.mappings[rowSelected][columnSelected] = "#";
+				mappingCashe = createMappingCashe(usergroup);
+				break;
 			case 18: // ^R Rotate Group names
 				VERTICAL_GROUPS = !VERTICAL_GROUPS;
 				groupCashe = createGroupCashe(usergroup, VERTICAL_GROUPS);
