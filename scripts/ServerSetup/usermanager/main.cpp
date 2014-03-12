@@ -632,6 +632,7 @@ int main() {
 	delwin(mapping);
 	delwin(grouplist);
 	delwin(userlist);
+	delwin(commandList);
 	endwin();
 
 	return 0;
