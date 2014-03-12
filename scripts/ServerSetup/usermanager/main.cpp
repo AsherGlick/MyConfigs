@@ -264,6 +264,81 @@ void drawMappingTable(
 }
 
 
+void drawUserList(
+	WINDOW * userlist,
+	vector<string> users,
+	unsigned int nlines,
+	unsigned int yOffset,
+	unsigned int longestUsername,
+	unsigned int rowSelected
+) {
+	// Draw usernames
+	for(unsigned int i = 0 ; i < nlines; i++) {
+		wmove(userlist, i, 0);
+
+		unsigned int index = i + yOffset;
+
+		if (index < users.size()) {
+
+			if (index == rowSelected) wattron(userlist,A_REVERSE);
+			waddstr(userlist, users[index].c_str());
+			if (index == rowSelected) wattroff(userlist,A_REVERSE);
+
+			// Padding to overwrite the ghosting letters from longer usernames
+			waddstr(userlist, string(longestUsername-users[index].length(), ' ').c_str());
+
+		}
+	}
+	wrefresh(userlist);
+}
+
+void drawGroupList(
+	WINDOW * grouplist,
+	vector<string> groupnameCashe,
+	unsigned int ncols,
+	unsigned int xOffset
+) {
+		// Draw groupnames
+		for (unsigned int i = 0; i < groupnameCashe.size(); i++) {
+			wmove(grouplist, i , 0);
+			for (unsigned int j = xOffset; j < xOffset + ncols; j++) {
+				if (j < groupnameCashe[i].size()) {
+					char character = groupnameCashe[i][j];
+
+					if (character != '|' && i < groupnameCashe.size()-1) {
+						wattron(grouplist, COLOR_PAIR(1));
+						wattron(grouplist, A_BOLD);
+					}
+
+					if (character == '|' && UNICODE_ENABLED) {
+						if (i == groupnameCashe.size()-1) {
+							if (j == 0)
+								waddstr(grouplist, "├");
+							else if (j == groupnameCashe[i].size()-2)
+								waddstr(grouplist, "┤");
+							else
+								waddstr(grouplist, "┼");
+						} else {
+							waddstr(grouplist, "│");
+						}
+					}
+					else if (character == '-' && UNICODE_ENABLED) {
+						waddstr(grouplist, "─");
+					}
+					else {
+						waddch(grouplist, character);
+					}
+
+					if (character != '|') {
+						wattroff(grouplist, A_BOLD);
+						wattroff(grouplist, COLOR_PAIR(1));
+					}
+				}
+			}
+		}
+		wrefresh(grouplist);
+}
+
 /****************************** DRAW COMMAND LIST *****************************\
 | The draw command list function draws the list of commands with the correct   |
 | spacing and coloring to the specified window passed into the function.       |
@@ -470,65 +545,8 @@ int main() {
 //////////////////////////////////////////////////////////////////////////////  
 
 	while(true) {
-		// Draw usernames
-		for(int i = 0 ; i < nlines; i++) {
-			wmove(userlist, i, 0);
-
-			unsigned int index = i + yOffset;
-
-			if (index < usergroup.users.size()) {
-
-				if (index == rowSelected) wattron(userlist,A_REVERSE);
-				waddstr(userlist, usergroup.users[index].c_str());
-				if (index == rowSelected) wattroff(userlist,A_REVERSE);
-
-				// Padding to overwrite the ghosting letters from longer usernames
-				waddstr(userlist, string(longestUsername-usergroup.users[index].length(), ' ').c_str());
-
-			}			
-		}
-		wrefresh(userlist);
-
-		// Draw groupnames
-		for (unsigned int i = 0; i < groupnameCashe.size(); i++) {
-			wmove(grouplist, i , 0);
-			for (unsigned int j = xOffset; j < xOffset + ncols; j++) {
-				if (j < groupnameCashe[i].size()) {
-					char character = groupnameCashe[i][j];
-
-					if (character != '|' && i < groupnameCashe.size()-1) {
-						wattron(grouplist, COLOR_PAIR(1));
-						wattron(grouplist, A_BOLD);
-					}
-
-					if (character == '|' && UNICODE_ENABLED) {
-						if (i == groupnameCashe.size()-1) {
-							if (j == 0)
-								waddstr(grouplist, "├");
-							else if (j == groupnameCashe[i].size()-2)
-								waddstr(grouplist, "┤");
-							else
-								waddstr(grouplist, "┼");
-						} else {
-							waddstr(grouplist, "│");
-						}
-					}
-					else if (character == '-' && UNICODE_ENABLED) {
-						waddstr(grouplist, "─");
-					}
-					else {
-						waddch(grouplist, character);
-					}
-
-					if (character != '|') {
-						wattroff(grouplist, A_BOLD);
-						wattroff(grouplist, COLOR_PAIR(1));
-					}
-				}
-			}
-		}
-		wrefresh(grouplist);
-
+		drawUserList(userlist, usergroup.users, nlines, yOffset, longestUsername, rowSelected);
+		drawGroupList(grouplist, groupnameCashe, ncols, xOffset);
 		drawMappingTable(mapping, mappingCashe, xOffset, yOffset, ncols, nlines, rowSelected, columnBounds[columnSelected], columnBounds[columnSelected+1]);
 		drawCommandList(commandList,w);
 		// Refresh the entire screen
