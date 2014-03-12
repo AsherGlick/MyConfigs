@@ -434,6 +434,29 @@ int executeFunction(Arguments... args) {
 }
 
 
+vector<string> createMappingCashe(const UserGroup & usergroup) {
+	// Create the mapping buffers
+	vector<string> mappingCashe(usergroup.users.size(), "|");
+	for (unsigned int i = 0; i < usergroup.groups.size(); i++) {
+		for (unsigned int j = 0; j < usergroup.users.size(); j++) {
+			if (!VERTICAL_GROUPS){
+				mappingCashe[j] += usergroup.mappings[j][i];
+				for (unsigned int k = 0; k < usergroup.groups[i].length(); k++){
+					mappingCashe[j] += usergroup.mappings[j][i];
+				}
+				mappingCashe[j] += usergroup.mappings[j][i];
+			}
+			else {
+				mappingCashe[j] += usergroup.mappings[j][i];
+				mappingCashe[j] += usergroup.mappings[j][i];
+				mappingCashe[j] += usergroup.mappings[j][i];
+			}
+			mappingCashe[j] += "|";
+		}
+	}
+	return mappingCashe;
+}
+
 /************************************ MAIN ************************************\
 | This function is in charge of handling the main window for ncurses. It       |
 | delegates window size and reacts to user input                               |
@@ -534,24 +557,7 @@ int main() {
 	}
 
 	// Create the mapping buffers
-	vector<string> mappingCashe(usergroup.users.size(), "|");
-	for (unsigned int i = 0; i < usergroup.groups.size(); i++) {
-		for (unsigned int j = 0; j < usergroup.users.size(); j++) {
-			if (!VERTICAL_GROUPS){
-				mappingCashe[j] += usergroup.mappings[j][i];
-				for (unsigned int k = 0; k < usergroup.groups[i].length(); k++){
-					mappingCashe[j] += usergroup.mappings[j][i];
-				}
-				mappingCashe[j] += usergroup.mappings[j][i];
-			}
-			else {
-				mappingCashe[j] += usergroup.mappings[j][i];
-				mappingCashe[j] += usergroup.mappings[j][i];
-				mappingCashe[j] += usergroup.mappings[j][i];
-			}
-			mappingCashe[j] += "|";
-		}
-	}
+	vector<string> mappingCashe = createMappingCashe(usergroup);
 
 	unsigned int nlines = h - longestGroupname -2;
 	unsigned int ncols = w - longestUsername - 2;
