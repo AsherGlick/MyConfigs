@@ -646,19 +646,22 @@ int main() {
 		if (columnBounds[upperIndex] > xOffset + ncols) {
 			xOffset = columnBounds[upperIndex]-ncols+1;
 		}
-
 		unsigned int lowerIndex = columnSelected;
 		if (lowerIndex >= 2) lowerIndex -= 2;
 		if (xOffset > columnBounds[lowerIndex]) {
 			int newPosition =columnBounds[lowerIndex];
 			xOffset = max(0, newPosition);
 		}
+		if (xOffset + ncols > columnBounds[columnBounds.size()-1]) {// resize: make right hit right of screen if there are enough rows
+			int newPosition = columnBounds[columnBounds.size()-1] - ncols;
+			xOffset = max(0, newPosition);
+		}
 
 		// Check Bounds UD
 		if (rowSelected > yOffset + nlines - 3) {
-			++yOffset;
+			yOffset = rowSelected-nlines+3;
 		}
-		if (yOffset + nlines > usergroup.users.size()) {
+		if (yOffset + nlines > usergroup.users.size()) { // resize: make bottom hit botom of screen if there is enough roes
 			int newPosition = usergroup.users.size() - nlines;
 			yOffset = max(0, newPosition);
 		}
