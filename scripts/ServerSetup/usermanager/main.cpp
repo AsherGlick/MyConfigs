@@ -376,9 +376,9 @@ void drawCommandList (WINDOW * commandList, unsigned int screenWidth) {
 	wmove(commandList, 1, (screenWidth * 0) / 5 + 2);
 	waddstr(commandList, " Exit");
 	wmove(commandList, 1, (screenWidth * 1) / 5 + 2);
-	waddstr(commandList, " New");
+	waddstr(commandList, " Save");
 	wmove(commandList, 1, (screenWidth * 2) / 5 + 2);
-	waddstr(commandList, " Delete");
+	waddstr(commandList, " Rotate Groups");
 	wmove(commandList, 1, (screenWidth * 3) / 5 + 2);
 	waddstr(commandList, " Toggle ");
 		wattron(commandList,COLOR_PAIR(3));
@@ -399,9 +399,9 @@ void drawCommandList (WINDOW * commandList, unsigned int screenWidth) {
 	wmove(commandList, 1, (screenWidth * 0) / 5);
 	waddstr(commandList, "^C");
 	wmove(commandList, 1, (screenWidth * 1) / 5);
-	waddstr(commandList, "^N");
+	waddstr(commandList, "^S");
 	wmove(commandList, 1, (screenWidth * 2) / 5);
-	waddstr(commandList, "^D");
+	waddstr(commandList, "^R");
 	wmove(commandList, 1, (screenWidth * 3) / 5);
 	waddstr(commandList, "  ");
 	wmove(commandList, 1, (screenWidth * 4) / 5);
