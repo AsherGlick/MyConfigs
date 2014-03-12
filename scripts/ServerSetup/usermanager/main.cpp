@@ -22,11 +22,6 @@ bool UNICODE_ENABLED = true;
 bool COLOR_ENABLED = true;
 bool VERTICAL_GROUPS = false;
 
-
-enum Mode { GROUP_MODE, USER_MODE };
-// vector<string> parseGroup() {
-// }
-
 struct UserGroup {
 	vector<string> users;
 	vector<string> groups;
@@ -449,8 +444,6 @@ int main() {
 // }
 
 // int dub() {
-	Mode viewMode = GROUP_MODE;
-
 	// X and Y offsets for viewing data
 	unsigned int xOffset = 0;
 	unsigned int yOffset = 0;
@@ -609,10 +602,6 @@ int main() {
 					rowSelected -= 1;
 				}
 				break;
-			case 10: // enter
-				// Toggle between edit and view modes
-
-				break;
 			case 32: // Space (toggle settings)
 				if (usergroup.mappings[rowSelected][columnSelected] == " ")
 					executeFunction("/usr/sbin/adduser", usergroup.users[rowSelected], usergroup.groups[columnSelected]);
@@ -622,18 +611,7 @@ int main() {
 					cerr << "You cant change the primary group of " << usergroup.users[rowSelected] << " yet" << endl;
 				break;
 
-			case 4: // ^D
-				//
-				break;
-			case 14: // ^N
-				break;
-			case 16: // ^P
-				break;
-			case 9: // Tab
-				// Switch views
-				if (viewMode == GROUP_MODE) viewMode = USER_MODE;
-				else viewMode = GROUP_MODE;
-				// redrawstuff();
+			case 18: // ^R Rotate Group names
 				break;
 			case KEY_RESIZE:
 				redrawWindows(mapping, grouplist, userlist, commandList, w, h, ncols, nlines, longestGroupname, longestUsername);
