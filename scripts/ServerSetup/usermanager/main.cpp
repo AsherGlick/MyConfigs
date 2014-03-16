@@ -722,7 +722,7 @@ int main() {
 				break;
 			case 16: // ^P Set primary group
 				// Shift the old primary group to a secondary group
-				for (int i = 0; i < usergroup.groups.size(); i++) {
+				for (unsigned int i = 0; i < usergroup.groups.size(); i++) {
 					if (usergroup.mappings[rowSelected][i] == "#") {
 						usergroup.mappings[rowSelected][i] = "X";
 					}
