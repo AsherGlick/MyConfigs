@@ -112,10 +112,10 @@ UserGroup parseUsers() {
 
 		vector<string> argumentList = explode(line, ":");
 
-		for(string argument : argumentList) {
-			cout << argument << "\t";
-		}
-		cout << endl;
+		// for(string argument : argumentList) {
+		// 	cout << argument << "\t";
+		// }
+		// cout << endl;
 
 		groupName = argumentList[0];
 		password = argumentList[1];
