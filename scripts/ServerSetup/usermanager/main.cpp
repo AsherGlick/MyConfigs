@@ -531,6 +531,69 @@ GroupCashe createGroupCashe(const UserGroup & usergroup, bool verticalGroups) {
 	return groupCashe;
 }
 
+
+// This function could be written a little better as far as checking to see if
+// the original files have changed and how to write to them in their new form
+bool writeGroups (UserGroup buffer) {
+	UserGroup current = parseUsers();
+
+	// Sanity Check Groups
+	if (buffer.groups.size() != current.groups.size()) {
+		cerr << "The groups have changed since beginning edit, cannot write changes" << endl;
+		return false;
+	}
+	for (unsigned int i = 0; i < buffer.groups.size(); i++) {
+		if (current.groups[i] != buffer.groups[i]) {
+			cerr << "The groups have changed since beginning edit, cannot write changes" << endl;
+			return false;
+		}
+	}
+
+	// Sanity Check Users
+	if (current.users.size() != buffer.users.size()) {
+		cerr << "The users have changed since beginning edit, cannot write changes" << endl;
+		return false;
+	}
+	for (unsigned int i = 0; i < buffer.users.size(); i++) {
+		if (current.users[i] != buffer.users[i]) {
+			cerr << "The users have changed since beginning edit, cannot write changes" << endl;
+			return false;
+		}
+	}
+
+	vector< unsigned int > changedUsers;
+	for (unsigned int i = 0; i < buffer.mappings.size(); i++) {
+		for (unsigned int j = 0; j < buffer.mappings[i].size(); j++) {
+			if (buffer.mappings[i][j] != current.mappings[i][j]) {
+				changedUsers.push_back(i);
+			}
+		}
+	}
+
+	// Loop through all of the changed rows
+	for (unsigned int i = 0; i < changedUsers.size(); i++) { // foreach user
+		vector< string > groups;
+		string user = buffer.users[changedUsers[i]];
+		string primaryGroup;
+		for (unsigned int j = 0; j < buffer.mappings[changedUsers[i]].size(); j++) { //foreach group
+			if ( buffer.mappings[changedUsers[i]][j] == "X" ) {
+				// Secondary Group
+				groups.push_back(buffer.groups[j]);
+			}
+			else if (buffer.mappings[changedUsers[i]][j] == "#" ) {
+				primaryGroup = buffer.groups[j];
+			}
+		}
+
+		executeFunction("/usr/sbin/usermod", "--gid", primaryGroup, user);
+		// string setPrimaryGroup = "usermod --gid " + primaryGroup + " " + user;
+		executeFunction("/usr/sbin/usermod", "--groups", implode(groups,","), user);
+		// string setSecondaryGroups = "usermod --groups " + implode(groups,",");
+
+	}
+	return true;
+}
+
 /************************************ MAIN ************************************\
 | This function is in charge of handling the main window for ncurses. It       |
 | delegates window size and reacts to user input                               |
@@ -619,7 +682,8 @@ int main() {
 		bool quit = false;
 		switch(inputkey) {
 			case 23: // ^W Write and exit
-				//write()
+				writeGroups(usergroup);
+				break;
 			case 113:  // q
 			case 81: // Q
 				quit=true;
