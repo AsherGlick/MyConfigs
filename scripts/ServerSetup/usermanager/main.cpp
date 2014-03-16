@@ -440,7 +440,7 @@ template<typename... Arguments>
 int executeFunction(Arguments... args) {
 	// Grab all the arguments as strings
 	// int size = sizeof...(Arguments);
-	vector<string> arguments = { (args)... };
+	vector<string> arguments = { args... };
 
 	// Assemble the command on a single line
 	string command;
@@ -450,6 +450,7 @@ int executeFunction(Arguments... args) {
 
 	// Run the command
 	cerr << "Running:" << command << endl;
+	system(command.c_str());
 
     return 0;
 }
