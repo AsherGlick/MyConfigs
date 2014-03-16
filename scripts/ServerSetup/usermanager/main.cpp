@@ -61,6 +61,21 @@ vector<string> explode(string line, string delimiter) {
 	return output;
 }
 
+string implode(vector<string> elements, string delimiter) {
+	// Corner case of length 0
+	if (elements.size() < 1) return "";
+
+	// Base case, one element no delimiters
+	string line = elements[0];
+
+	// Continued case, on delimiter for each additional element
+	for (unsigned int i = 1; i < elements.size(); i++) {
+		line += delimiter + elements[i];
+	}
+
+	return line;
+}
+
 /********************************* PARSE USERS ********************************\
 | This function reads /etc/passwd and /etc/group to get a list of users, a     |
 | list of groups, and a matrix mapping the two. The matrix contains data on    |
