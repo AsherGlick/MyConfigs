@@ -48,6 +48,10 @@ def main(argc, argv):
             print fileList[i], " --> ", newname
             oldFile = os.path.join(directory, fileList[i])
             newFile = os.path.join(directory, newname)
+            newDirectory = os.path.dirname(newFile)
+            if not os.path.exists(newDirectory):
+                print "making directory", newDirectory
+                os.makedirs(newDirectory)
             os.rename(oldFile, newFile)
 
 if __name__ == "__main__":
