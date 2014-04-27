@@ -31,12 +31,19 @@ for x in range(8, 16):
 print("\033[0m\n")
 
 for x in range(0, 6):
-    for y in range(0, 6):
+    for y in range(0, 3): # print only the first 3 cubes
         for z in range(0, 6):
             print ("\033[48;5;" + str(16+(y*36)+(x*6)+z) + "m" + "  ", sep='', end='')
         print("\033[0m  ", end='')
     print("\033[0m")
+print("\033[0m")
 
+for x in range(0, 6):
+    for y in range(3, 6): # print only the last 3 cubes
+        for z in range(0, 6):
+            print ("\033[48;5;" + str(16+(y*36)+(x*6)+z) + "m" + "  ", sep='', end='')
+        print("\033[0m  ", end='')
+    print("\033[0m")
 print("\033[0m")
 
 for x in range(232, 256):
@@ -54,13 +61,22 @@ for x in range(8, 16):
     print ("\033[38;5;" + str(x) + "m##", sep='', end='')
 print("\033[0m\n")
 
+
+
 for x in range(0, 6):
-    for y in range(0, 6):
+    for y in range(0, 3):
+        for z in range(0, 6): 
+            print ("\033[38;5;" + str(16+(y*36)+(x*6)+z) + "m" + "##", sep='', end='')
+        print("\033[0m  ", end='')
+    print("\033[0m")
+print("\033[0m")
+
+for x in range(0, 6):
+    for y in range(3, 6):
         for z in range(0, 6):
             print ("\033[38;5;" + str(16+(y*36)+(x*6)+z) + "m" + "##", sep='', end='')
         print("\033[0m  ", end='')
     print("\033[0m")
-
 print("\033[0m")
 
 for x in range(232, 256):
