@@ -146,7 +146,7 @@ function format_seconds () {
         if [ $num -ne 0 ]
         then
           hour=$num
-          if [ $hour < 10 ]
+          if [ $hour -lt 10 ]
           then
             hour="0$hour"
           fi
