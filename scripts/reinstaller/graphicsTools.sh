@@ -16,6 +16,7 @@ packageList+=(
 	'audacity'        # Audio recording
 	'recordmydesktop' # As of 2012 the best desktop recorder for linux I have found
 	'openshot'        # Video Editor
+	'pavucontrol'     # Audo control to help with screen recording
 )
 
 ################################################################################
