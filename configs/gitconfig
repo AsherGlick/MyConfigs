@@ -2,7 +2,7 @@
 	name = Asher Glick
 	email = asher.glick@gmail.com
 [core]
-	editor = sublime -n -w
+	editor = subl -n -w
 [color]
 	ui = true
 [alias]
