@@ -1,0 +1,5 @@
+# This file is to prevent some programs that use OpenALSoft from using the DONT_MOVE
+# flag in pulse audio preventing me from shifting their audio into a single-record thread
+# http://steamcommunity.com/app/93200/discussions/0/864959809826195633/
+[pulse]
+allow-moves=yes
