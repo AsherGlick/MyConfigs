@@ -8,6 +8,7 @@
 	"terminalglobals":"~/.gconf/apps/gnome-terminal/global/%gconf.xml",
 	"terminalprofile0":"~/.gconf/apps/gnome-terminal/profiles/Profile0/%gconf.xml",
 	"sublimesettings":"~/.config/sublime-text-2/Packages/User/Preferences.sublime-settings",
+	"sublimesettings3":"~/.config/sublime-text-3/Packages/User/Preferences.sublime-settings",
 	"templink":"~/templinked",
 	"alsoftrc":"~/.alsoftrc"
 }

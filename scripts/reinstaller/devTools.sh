@@ -11,13 +11,13 @@ packageList+=(
 	'arduino'
 	'eclipse'
 
-	'libsdl1.2-dev'
-	'libsdl-mixer1.2-dev'
-	'libsdl-image1.2-dev'
-	'libsdl-ttf2.0-dev'
-	'python-qt4-dev'
-	'libqt4-dev'
-	'qt4-dev-tools'
+	'libsdl2-dev'
+	'libsdl2-mixer-dev'
+	'libsdl2-image-dev'
+	'libsdl2-ttf-dev'
+	'python3-pyqt5'
+	'qtbase5-dev'
+	'qtbase5-dev-tools'
 )
 
 ################################################################################
