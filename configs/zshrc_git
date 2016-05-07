@@ -1,53 +1,38 @@
 ################################################################################
 ################################# GIT SETTINGS #################################
 ################################################################################
-# get the current branch name
-currentBranch() {
-  ref=$(git symbolic-ref HEAD 2> /dev/null) || return
-  echo "${ref#refs/heads/}"
-}
-
+local GIT_COLOR_DIRTY="%{$fg[red]%}"
+local GIT_COLOR_CLEAN="%{$fg[green]%}"
+local GIT_COLOR_UNMERGED="%{$fg[yellow]%}"
+local GIT_COLOR_RESET="%{$terminfo[sgr0]%}"
 ################################## GIT PROMPT ##################################
 # The git prompt function gathers the current branch and formats it for        #
 # display. Depending on the status of the repo it changes the color of the     #
 # branch name.                                                                 #
 ################################################################################
 function __git_prompt {
-  local DIRTY="%{$fg[red]%}"
-  local CLEAN="%{$fg[green]%}"
-  local UNMERGED="%{$fg[yellow]%}"
-  local RESET="%{$terminfo[sgr0]%}"
+
   git rev-parse --git-dir >& /dev/null
   if [[ $? == 0 ]] # Check last error to see if this is a git repo
   then
     echo -n "["
-    # echo -n "[+%% "
     if [[ `git ls-files -u` == '' ]]
     then
       git diff --quiet >& /dev/null
       if [[ $? == 1 ]]
       then
-        echo -n $DIRTY
+        echo -n $GIT_COLOR_DIRTY
       else
-        echo -n $CLEAN
+        echo -n $GIT_COLOR_CLEAN
       fi
     else
-      echo -n $UNMERGED
+      echo -n $GIT_COLOR_UNMERGED
     fi
-    echo -n `currentBranch`
-    echo -n $RESET
+    # Print the branch name in the middle of the prompt
+    echo -n `git rev-parse --abbrev-ref HEAD 2> /dev/null`
+    echo -n $GIT_COLOR_RESET
     echo -n "]"
-    # echo -n " 9]"
   fi 
-  #svn checking
-  svn info >& /dev/null
-  if [[ $? == 0 ]]
-  then
-    echo -n "{svn}"
-      else
-    echo ""
-  fi
-  ## git rev-list -1 --grep='git-svn-id' HEAD ## will check to see if the repo is a git-svn repo
 }
 
 ## set up the right prompt with git
