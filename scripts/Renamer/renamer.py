@@ -35,7 +35,7 @@ def main(argc, argv):
     tempFile.close()
 
     # open sublime to modify the files
-    os.system("sublime -n -w "+tempPath)
+    os.system("subl -n -w "+tempPath)
 
     # read in the new names
     newnames = []
