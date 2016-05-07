@@ -49,7 +49,7 @@ alias gc="git commit -m"
 alias gk="git checkout"
 alias gd="git diff"
 alias gl="git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --"
-gp() { git pull origin `currentBranch`; git push --set-upstream origin `currentBranch` }
+gp() { git pull origin `git rev-parse --abbrev-ref HEAD 2> /dev/null`; git push --set-upstream origin `git rev-parse --abbrev-ref HEAD 2> /dev/null` }
 alias gb="git branch"
 alias gi="git ignore" # a custom git alias stored in gitconfig
 
