@@ -156,3 +156,4 @@ bar {
         tray_output primary
 }
 
+exec --no-startup-id /usr/lib/gnome-settings-daemon/gnome-settings-daemon

@@ -10,5 +10,6 @@
 	"sublimesettings":"~/.config/sublime-text-2/Packages/User/Preferences.sublime-settings",
 	"sublimesettings3":"~/.config/sublime-text-3/Packages/User/Preferences.sublime-settings",
 	"templink":"~/templinked",
-	"alsoftrc":"~/.alsoftrc"
+	"alsoftrc":"~/.alsoftrc",
+	"i3conf":"~/.config/i3/config"
 }
