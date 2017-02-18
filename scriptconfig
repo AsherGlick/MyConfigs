@@ -11,5 +11,6 @@
 	"sublimesettings3":"~/.config/sublime-text-3/Packages/User/Preferences.sublime-settings",
 	"templink":"~/templinked",
 	"alsoftrc":"~/.alsoftrc",
-	"i3conf":"~/.config/i3/config"
+	"i3conf":"~/.config/i3/config",
+	"dotprofile":"~/.profile"
 }
