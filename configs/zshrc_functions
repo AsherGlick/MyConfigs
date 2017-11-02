@@ -106,6 +106,25 @@ function format_seconds () {
   hour=""
   day=""
 
+
+  # # Letter Suffix
+  # sec_suffix="s"
+  # min_suffix="m "
+  # hour_suffix="h "
+  # day_suffix="d "
+
+  # # Text Suffix
+  # sec_suffix="seconds"
+  # min_suffix="minutes "
+  # hour_suffix="hours "
+  # day_suffix="days "
+
+  # Colon suffix
+  sec_suffix=""
+  min_suffix=":"
+  hour_suffix=":"
+  day_suffix=":"
+
   # If there is a minute or more
   if [ $num -gt 59 ]
   then
@@ -121,9 +140,9 @@ function format_seconds () {
       min=$((num%60))
       if [ $min -lt 10 ]
       then
-        min="0$min:"
+        min="0$min$min_suffix"
       else
-        min="$min:"
+        min="$min$min_suffix"
       fi
       num=$((num/60))
       # If there is a day or more
@@ -132,15 +151,15 @@ function format_seconds () {
         hour=$((num%24))
         if [ $hour -lt 10 ]
         then
-          hour="0$hour:"
+          hour="0$hour$hour_suffix"
         else
-          hour="$hour:"
+          hour="$hour$hour_suffix"
         fi
         # If there is a day or more
         if [ $num -ne 0 ]
         then
           day=$((num/24))
-          day="$day:"
+          day="$day$day_suffix"
         fi
       else
         if [ $num -ne 0 ]
@@ -150,18 +169,18 @@ function format_seconds () {
           then
             hour="0$hour"
           fi
-          hour="$hour:"
+          hour="$hour$hour_suffix"
         fi
       fi
     else
       if [ $num -ne 0 ]
       then
         min=$num
-        min="$min:"
+        min="$min$min_suffix"
       fi
     fi
   else
     sec=$num
   fi
-  echo "$day$hour$min$sec"
+  echo "$day$hour$min$sec$sec_suffix"
 }
