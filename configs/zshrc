@@ -119,18 +119,17 @@ function precmd() {
       preprompt="${preprompt} in $pretime$reset_color s"
     fi
     unset timer
+      # If the time is beyond a longer threshold issue a system notification on completion
+      if [ $timer_show -gt $NOTIFY_TIME_THRESHOLD ]; then
+        notify-send --icon=terminal "Long Running Command Finished" "Completed in $(format_seconds $timer_show)s
+${PREVIOUS_COMMAND}"
+        paplay /usr/share/sounds/KDE-Sys-App-Positive.ogg
+      fi
   fi
 
   if [[ "$preprompt" != "" ]]
   then
     print -rP "Command Executed$preprompt"
-  fi
-
-  # If the time is beyond a longer threshold issue a system notification on completion
-  if [ $timer_show -gt $NOTIFY_TIME_THRESHOLD ]; then
-    notify-send --icon=terminal "Long Running Command Finished" "Completed in $(format_seconds $timer_show)s
-${PREVIOUS_COMMAND}"
-    paplay /usr/share/sounds/KDE-Sys-App-Positive.ogg
   fi
 }
 
