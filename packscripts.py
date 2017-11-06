@@ -30,7 +30,6 @@
 import json
 import shutil
 import os
-import sys
 import filecmp
 
 json_data = open('scriptconfig')
@@ -60,7 +59,6 @@ def getTerminalSize():
             import fcntl
             import termios
             import struct
-            #import os
             cr = struct.unpack('hh', fcntl.ioctl(fd, termios.TIOCGWINSZ, '1234'))
         except:
             return None
@@ -81,93 +79,124 @@ def getTerminalSize():
     return int(cr[1]), int(cr[0])
 
 
-################################## CYCLE FILES #################################
-# This function cycles through all of the files, checks if they are the same   #
-# file or a different file and then runs the specified function on the two     #
-# files                                                                        #
+################################## PRINT FILE ##################################
+# Given a single file in the config it prints out a line giving the status of  #
+# that file depending of if the files exist, are linked together, are          #
+# different, or are identical                                                  #
 ################################################################################
-def cycleFiles(beginningComment, functiontorun, verbose=False, sucessMessage="Sucess"):
+def printFile(repo_file, os_file):
     (width, height) = getTerminalSize()
 
-    print beginningComment
+    color = ""
+    text = ""
 
-    for element in data:
-        output = ""
-        info = ""
-        path = os.path.expanduser(data[element])
-        localPath = os.path.expanduser("configs/"+element)
-        localPath = os.path.abspath(localPath)
+    # OS File Missing
+    if not os.path.exists(os_file):
+        color = FAIL
+        text = "OS File Missing"
 
-        #print localPath
+    # Repo File Missing
+    elif not os.path.exists(repo_file):
+        color = FAIL
+        text = "Repo File Missing"
 
-        symbolicLink = ""
-        try:
-            symbolicLink = os.readlink(path)
-        except OSError:
-            #print "NOT LINK"
-            pass
+    # Linked Files
+    elif is_linked(repo_file, os_file):
+        color = LINKED
+        text = "Linked"
 
-        filesDiffer = True
+    # Same File on both repo and os (but not linked)
+    elif not is_different(repo_file, os_file):
+        color = OKGREEN
+        text = "Identical Files"
 
-        try:
-            filesDiffer = not filecmp.cmp(path, localPath)
-        except:
-            pass
+    # Differnet Files
+    else:
+        color = WARNING
+        text = "Different Files"
 
-        # if the target file is not a symbolic link
-        if symbolicLink == "":
-            info = sucessMessage
-            color = OKGREEN
-            try:
-                if filesDiffer:
-                    functiontorun(localPath, path)
-                else:
-                    info = "No Change"
-                    color = WARNING
-            except IOError:
-                info = "Failed, Error opening file"
-                color = FAIL
-            except:
-                info = "Failed, Unknown Error"
-                color = FAIL
+    # Print row
+    # print color, text, ENDC
 
-        # the taget is a symbolic link
+    file = os.path.basename(repo_file)
+    print " " + color + file + ENDC + " " + ("." * (width - 6 - len(file) - len(text))) + color + " [" + text + "]" + ENDC
+
+
+################################### IS LINKED ##################################
+# Checks to see if the os file is a symlink and if it is checks to make sure   #
+# it points to the correct repo file                                           #
+################################################################################
+def is_linked(repo_file, os_file):
+    try:
+        link_target = os.readlink(os_file)
+        if link_target == repo_file:
+            return True
         else:
-            if symbolicLink == localPath:
-                info = "Linked"
-                color = LINKED
-            else:
-                info = "Bad Link to:" + symbolicLink
-                color = LINKED
+            return False
 
-        output = " " + color + element + ENDC + " " + ("."*(width-6-len(element)-len(info))) + color + " ["+info+"]" + ENDC
-        if(verbose):
-            output += "\n  " + path
-        print output
+    except OSError:
+        # Probably not a symlink
+        return False
+
+
+################################# IS DIFFERENT #################################
+# Checks to see if the two files listed are identical or if they have changes  #
+# between them                                                                 #
+################################################################################
+def is_different(repo_file, os_file):
+    try:
+        return not filecmp.cmp(os_file, repo_file)
+
+    except:
+        return True
+
+
+################################## GET OS PATH #################################
+# A helper function to get the path of the OS file based on the file name in   #
+# the config                                                                   #
+################################################################################
+def get_os_path(file):
+    return os.path.expanduser(data[file])
+
+
+################################# GET REPO PATH ################################
+# A helper function to get the path of the repo file based on the file name    #
+# in the config                                                                #
+################################################################################
+def get_repo_path(file):
+    return os.path.abspath(os.path.join(os.path.dirname(__file__), "configs", file))
+
+
+############################## ACTION ON ALL FILES #############################
+# Runs a function on all the files in the config. Each function takes in two   #
+# arguments, the first is the repo file path, the second is the os file path   #
+################################################################################
+def aciton_on_all_files(action_function):
+    for file in data:
+        os_path = get_os_path(file)
+        repo_path = get_repo_path(file)
+
+        action_function(repo_path, os_path)
 
 
 ################################# RESTORE COPY #################################
 # This function copys the file from the the local file to the target file in   #
 # effect "restoring" the file to the machine                                   #
 ################################################################################
-def restoreCopy(localFile, targetFile):
-    shutil.copyfile(localFile, targetFile)
+def restoreFile(repo_file, os_file, force=False):
+    # Dont overwrite symlinks unless you want to
+    if os.path.islink(os_file) and force is False:
+        return
+
+    shutil.copyfile(repo_file, os_file)
 
 
 ################################## BACKUP COPY #################################
 # This function copys the target file into the local directory in order to     #
 # back it up so that it is saved in the repo                                   #
 ################################################################################
-def backupCopy(localFile, targetFile):
-    shutil.copyfile(targetFile, localFile)
-
-
-################################# NULL FUNCTION ################################
-# This function does nothing and is ment to be used for when the user just     #
-# wants to check to see if the file is different or the same                   #
-################################################################################
-def nullFunction(localFile, targetFile):
-    pass
+def backupFile(repo_file, os_file):
+    shutil.copyfile(os_file, repo_file)
 
 
 ################################## LINK FILES ##################################
@@ -175,58 +204,48 @@ def nullFunction(localFile, targetFile):
 # stored in the configurations directory allowing for the files to allways be  #
 # synced                                                                       #
 ################################################################################
-def linkFiles(localFile, targetFile):
-    #pass
-    print localFile
-    print targetFile
-    if os.path.exists(targetFile):
-        os.remove(targetFile)
-    os.symlink(localFile, targetFile)
+def linkFile(repo_file, os_file):
+    if os.path.exists(os_file):
+        os.remove(os_file)
+    os.symlink(repo_file, os_file)
 
 
 ## the main statement that handles the arguments and calls the apropriate functions
 if __name__ == "__main__":
-    if len(sys.argv) >= 2:
-        if sys.argv[1] == "backup":
-            if len(sys.argv) == 3:
-                localFile = sys.argv[2]
-                if localFile in data:
-                    path = os.path.expanduser(data[localFile])
-                    localPath = os.path.expanduser("configs/"+localFile)
-                    localPath = os.path.abspath(localPath)
-                    backupCopy(localPath, path)
-                    cycleFiles("Backing Up Files", nullFunction, verbose=False, sucessMessage="Different Files")
-                else:
-                    print "Unknown File to Restore"
-            else:
-                cycleFiles("Beginning Backup", backupCopy, verbose=False, sucessMessage="Backed Up")
-        elif sys.argv[1] == "restore":
-            if len(sys.argv) == 3:
-                localFile = sys.argv[2]
-                if localFile in data:
-                    path = os.path.expanduser(data[localFile])
-                    localPath = os.path.expanduser("configs/"+localFile)
-                    localPath = os.path.abspath(localPath)
-                    restoreCopy(localPath, path)
-                    cycleFiles("Restoring Files", nullFunction, verbose=False, sucessMessage="Different Files")
-                else:
-                    print "Unknown File to Restore"
-            else:
-                cycleFiles("Beginning Restore", restoreCopy, verbose=False, sucessMessage="Extracted")
+    import argparse
 
-        elif sys.argv[1] == "link":
-            if len(sys.argv) == 3:
-                localFile = sys.argv[2]
-                if localFile in data:
-                    path = os.path.expanduser(data[localFile])
-                    localPath = os.path.expanduser("configs/"+localFile)
-                    localPath = os.path.abspath(localPath)
-                    linkFiles(localPath, path)
-                    cycleFiles("Linking Files", nullFunction, verbose=True, sucessMessage="Different Files")
-                else:
-                    print "Unknown File to Link"
-            else:
-                print "You need to specify a file you want to have linked"
-    else:
-        print "Options: backup, restore, link"
-        cycleFiles("Beginning Check", nullFunction, verbose=False, sucessMessage="Different Files")
+    parser = argparse.ArgumentParser(description='Linking and syncromizing config files')
+
+    parser.add_argument('--backup', type=str, nargs="+", help='Attempt to copy an unlinked file from their os locaiton to their repo location')
+    parser.add_argument('--restore', type=str, nargs="+", help="Attempt to copy a file from their repo location to their OS location, overwrites simlinks")
+    parser.add_argument('--link', type=str, nargs="+", help="Attempt to create a symlink for a particular repo file at the OS file location")
+
+    parser.add_argument('--backup-all', action="store_true", help='Attempt to copy all unlinked files from their OS locaiton to their repo location')
+    parser.add_argument('--restore-all', action="store_true", help="Attempt to copy all unlinked files from their repo location to their OS location")
+    parser.add_argument('--link-all', action="store_true", help="Attempt to create a symlink for all OS files pointing to the repo files")
+
+    args = parser.parse_args()
+
+    # Backup
+    if args.backup:
+        for file in args.backup:
+            backupFile(get_repo_path(file), get_os_path(file))
+    if args.backup_all:
+        aciton_on_all_files(backupFile)
+
+    # Restore
+    if args.restore:
+        for file in args.restore:
+            restoreFile(get_repo_path(file), get_os_path(file), force=True)
+    if args.restore_all:
+        aciton_on_all_files(restoreFile)
+
+    # Link
+    if args.link:
+        for file in args.link:
+            linkFile(get_repo_path(file), get_os_path(file))
+    if args.link_all:
+        aciton_on_all_files(linkFile)
+
+    # Print File State
+    aciton_on_all_files(printFile)
