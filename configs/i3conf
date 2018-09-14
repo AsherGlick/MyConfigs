@@ -93,16 +93,19 @@ bindsym $mod+a focus parent
 #bindsym $mod+d focus child
 
 # switch to workspace
-bindsym $mod+1 workspace 1
-bindsym $mod+2 workspace 2
-bindsym $mod+3 workspace 3
-bindsym $mod+4 workspace 4
-bindsym $mod+5 workspace 5
-bindsym $mod+6 workspace 6
-bindsym $mod+7 workspace 7
-bindsym $mod+8 workspace 8
-bindsym $mod+9 workspace 9
-bindsym $mod+0 workspace 10
+bindsym $mod+1 exec --no-startup-id ~/.config/i3/switch-workspace.py 1
+bindsym $mod+2 exec --no-startup-id ~/.config/i3/switch-workspace.py 2
+bindsym $mod+3 exec --no-startup-id ~/.config/i3/switch-workspace.py 3
+bindsym $mod+4 exec --no-startup-id ~/.config/i3/switch-workspace.py 4
+bindsym $mod+5 exec --no-startup-id ~/.config/i3/switch-workspace.py 5
+bindsym $mod+6 exec --no-startup-id ~/.config/i3/switch-workspace.py 6
+bindsym $mod+7 exec --no-startup-id ~/.config/i3/switch-workspace.py 7
+bindsym $mod+8 exec --no-startup-id ~/.config/i3/switch-workspace.py 8
+bindsym $mod+9 exec --no-startup-id ~/.config/i3/switch-workspace.py 9
+bindsym $mod+0 exec --no-startup-id ~/.config/i3/switch-workspace.py 10
+
+
+
 
 # move focused container to workspace
 bindsym $mod+Shift+1 move container to workspace 1
@@ -156,4 +159,14 @@ bar {
         tray_output primary
 }
 
+# Enable gnome keyrink daemon
 exec --no-startup-id /usr/lib/gnome-settings-daemon/gnome-settings-daemon
+
+# Set background color
+exec --no-startup-id xsetroot -solid "#333333"
+
+
+# Needs work as a screenshot command in i3
+# should use the default shortcuts for window capture and others
+for_window [class="Gnome-screenshot"] floating enable
+bindsym Print exec gnome-screenshot --interactive
