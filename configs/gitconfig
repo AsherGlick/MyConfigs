@@ -12,4 +12,4 @@
 	ignore = !sh -c 'echo $1 >> .gitignore' -
 	root = rev-parse --show-toplevel
 [diff]
-	algorithm = patience
+	algorithm = histogram
