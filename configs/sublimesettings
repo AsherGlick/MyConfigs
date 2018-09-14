@@ -1,30 +1,18 @@
 {
-    "auto_complete": true,
-    "color_scheme": "Packages/User/SublimeLinter/Monokai (SL).tmTheme",
-    "draw_minimap_border": false,
-    "font_size": 10,
-    "ignored_packages":
-    [
-        "Vintage"
-    ],
-    
-    // Columns in which to display vertical rulers
-    "rulers":
-    [
-        80,
-        120
-    ],
-
-    // Set to true to automatically save files when switching to a different file
-    // or application
-    "save_on_focus_lost": true,
-
-    // Show the full path to files in the title bar.
-    // On OS X, this value is overridden in the platform specific settings, so
-    // you'll need to place this line in your user settings to override it.
-    "show_full_path": true,
-
-    // Always visualise the viewport on the minimap, as opposed to only
-    // showing it on mouse over
-    "always_show_minimap_viewport": true
+	"always_show_minimap_viewport": true,
+	"auto_complete": true,
+	"color_scheme": "Packages/Color Scheme - Default/Monokai.sublime-color-scheme",
+	"draw_minimap_border": false,
+	"font_size": 10,
+	"ignored_packages":
+	[
+		"Vintage"
+	],
+	"rulers":
+	[
+		80,
+		120
+	],
+	"save_on_focus_lost": true,
+	"show_full_path": true
 }
