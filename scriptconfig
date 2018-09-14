@@ -9,5 +9,7 @@
 	"terminalprofile0":"~/.gconf/apps/gnome-terminal/profiles/Profile0/%gconf.xml",
 	"sublimesettings":"~/.config/sublime-text-3/Packages/User/Preferences.sublime-settings",
 	"templink":"~/templinked",
-	"alsoftrc":"~/.alsoftrc"
+	"alsoftrc":"~/.alsoftrc",
+	"i3conf":"~/.config/i3/config",
+	"dotprofile":"~/.profile"
 }
