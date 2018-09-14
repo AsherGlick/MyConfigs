@@ -1,0 +1,17 @@
+#! /bin/zsh
+# First and only argument is the target machine
+
+# Ask for a name and save it
+printf "Username: "
+read NAME
+
+# Ask for the key and read in the 51 lines of a private key
+echo -n "Key (Paste it in):";
+for i in {1..51}
+do
+	read -s KEY_LINE
+	KEY="$KEY\n$KEY_LINE"
+done
+
+# SSH into the box
+ssh $NAME@$1 -i =(printf "$KEY")
