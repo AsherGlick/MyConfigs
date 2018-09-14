@@ -13,3 +13,5 @@
 	root = rev-parse --show-toplevel
 [diff]
 	algorithm = histogram
+[push]
+	default = simple

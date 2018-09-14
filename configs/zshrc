@@ -14,6 +14,7 @@ setopt prompt_subst
 # Any commands that run for longer then this number of seconds will get a
 # execution time printed to the terminal uppon completion
 HIDE_TIME_THRESHOLD=5
+NOTIFY_TIME_THRESHOLD=60
 
 
 
@@ -81,8 +82,12 @@ prompt_date=$( bold $(forground grey "%D{%H:%M:%S}"))
 
 # the function that executes right before any ZSH command executes
 function preexec() {
+  # Start the timer to see when the command is executed
   timer=${timer:-$SECONDS}
   commandrun='Y'
+
+  # Store the command run so it can be accessed easily in other commands
+  PREVIOUS_COMMAND=$1
 }
 
 
@@ -109,12 +114,17 @@ function precmd() {
     timer_show=$(($SECONDS - $timer))
     if [ $timer_show -gt $HIDE_TIME_THRESHOLD ]; then
 
-
       # Format the time
       pretime=$(forground cyan "$(format_seconds $timer_show)" )
       preprompt="${preprompt} in $pretime$reset_color s"
     fi
     unset timer
+      # If the time is beyond a longer threshold issue a system notification on completion
+      if [ $timer_show -gt $NOTIFY_TIME_THRESHOLD ]; then
+        notify-send --icon=terminal "Long Running Command Finished" "Completed in $(format_seconds $timer_show)s
+${PREVIOUS_COMMAND}"
+        paplay /usr/share/sounds/KDE-Sys-App-Positive.ogg
+      fi
   fi
 
   if [[ "$preprompt" != "" ]]
