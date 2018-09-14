@@ -96,6 +96,7 @@ function precmd() {
   resultcode=$?
   preprompt=""
 
+
   # if no command has been run dont display the error code again
   if [[ $commandrun == "Y" ]]; then
     commandrun='N'
@@ -123,7 +124,7 @@ function precmd() {
       if [ $timer_show -gt $NOTIFY_TIME_THRESHOLD ]; then
         notify-send --icon=terminal "Long Running Command Finished" "Completed in $(format_seconds $timer_show)s
 ${PREVIOUS_COMMAND}"
-        paplay /usr/share/sounds/KDE-Sys-App-Positive.ogg
+        # paplay /usr/share/sounds/KDE-Sys-App-Positive.ogg
       fi
   fi
 
@@ -205,8 +206,8 @@ setopt histignorealldups sharehistory
 bindkey -e
 
 # Keep 1000 lines of history within the shell and save it to ~/.zsh_history:
-HISTSIZE=1000
-SAVEHIST=1000
+HISTSIZE=100000
+SAVEHIST=100000
 HISTFILE=~/.zsh_history
 
 
