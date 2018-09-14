@@ -84,6 +84,44 @@ function randpass2() {
 }
 
 
+function find_pip_venv_root(){
+  echo $(
+  #echo $1"/venv/bin/activate"
+  if [[ -f `pwd`"/venv/bin/activate" ]]; then
+    echo `pwd`"/venv/bin/activate"
+  else
+    if [[ `pwd` == "/" ]]; then
+      echo ""
+      # Exit
+    else
+      # Moving Down
+      cd ..
+      find_pip_venv_root
+    fi
+  fi
+  )
+}
+function vpython() {
+  ACTIVATE=`find_pip_venv_root`
+  if [[ -f $ACTIVATE ]]; then
+    source $ACTIVATE
+    python $@
+    deactivate
+  else
+    echo "Cannot find python venv/ virtual environment"
+  fi
+}
+function vpip() {
+  ACTIVATE=`find_pip_venv_root`
+  if [[ -f $ACTIVATE ]]; then
+    source $ACTIVATE
+    pip $@
+    deactivate
+  else
+    echo "Cannot find python venv/ virtual environment"
+  fi
+}
+
 
 ################################ FORMAT SECONDS ################################
 # This function takes in a number of seconds and formats into a string of      #
